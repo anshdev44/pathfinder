@@ -1,0 +1,66 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Grid -->
+  <defs>
+    <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(138, 43, 226, 0.1)" stroke-width="0.5" />
+    </pattern>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <rect width="50" height="50" fill="url(#smallGrid)" />
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+    </pattern>
+  </defs>
+  
+  <!-- Grid Background -->
+  <rect width="100%" height="100%" fill="url(#grid)" />
+  
+  <!-- Nodes -->
+  <circle cx="50" cy="50" r="10" fill="rgba(138, 43, 226, 0.8)" />
+  <circle cx="120" cy="100" r="8" fill="rgba(138, 43, 226, 0.7)" />
+  <circle cx="200" cy="80" r="8" fill="rgba(138, 43, 226, 0.7)" />
+  <circle cx="280" cy="120" r="8" fill="rgba(138, 43, 226, 0.7)" />
+  <circle cx="350" cy="180" r="10" fill="rgba(138, 43, 226, 0.8)" />
+  
+  <!-- Additional nodes -->
+  <circle cx="100" cy="200" r="8" fill="rgba(138, 43, 226, 0.5)" />
+  <circle cx="180" cy="170" r="8" fill="rgba(138, 43, 226, 0.5)" />
+  <circle cx="250" cy="220" r="8" fill="rgba(138, 43, 226, 0.5)" />
+  <circle cx="150" cy="250" r="8" fill="rgba(138, 43, 226, 0.5)" />
+  
+  <!-- Connecting lines -->
+  <line x1="50" y1="50" x2="120" y2="100" stroke="rgba(138, 43, 226, 0.4)" stroke-width="2" />
+  <line x1="120" y1="100" x2="200" y2="80" stroke="rgba(138, 43, 226, 0.4)" stroke-width="2" />
+  <line x1="200" y1="80" x2="280" y2="120" stroke="rgba(138, 43, 226, 0.4)" stroke-width="2" />
+  <line x1="280" y1="120" x2="350" y2="180" stroke="rgba(138, 43, 226, 0.4)" stroke-width="2" />
+  
+  <line x1="50" y1="50" x2="100" y2="200" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="120" y1="100" x2="180" y2="170" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="200" y1="80" x2="150" y2="250" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="280" y1="120" x2="250" y2="220" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="100" y1="200" x2="180" y2="170" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="180" y1="170" x2="250" y2="220" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="250" y1="220" x2="350" y2="180" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="100" y1="200" x2="150" y2="250" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  <line x1="150" y1="250" x2="250" y2="220" stroke="rgba(138, 43, 226, 0.2)" stroke-width="1" />
+  
+  <!-- Path highlighting -->
+  <path d="M50,50 L120,100 L200,80 L280,120 L350,180" stroke="rgba(138, 43, 226, 0.9)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Node highlights -->
+  <circle cx="50" cy="50" r="15" fill="none" stroke="rgba(138, 43, 226, 0.6)" stroke-width="2">
+    <animate attributeName="r" values="15;18;15" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="stroke-opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <circle cx="350" cy="180" r="15" fill="none" stroke="rgba(138, 43, 226, 0.6)" stroke-width="2">
+    <animate attributeName="r" values="15;18;15" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="stroke-opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Start and End labels -->
+  <text x="45" y="35" font-family="Arial" font-size="12" fill="#fff">Start</text>
+  <text x="345" y="210" font-family="Arial" font-size="12" fill="#fff">End</text>
+  
+  <!-- Path distance measurement -->
+  <line x1="175" y1="255" x2="225" y2="255" stroke="rgba(138, 43, 226, 0.9)" stroke-width="2" />
+  <text x="200" y="270" font-family="Arial" font-size="10" fill="#fff" text-anchor="middle">324 miles</text>
+</svg> 

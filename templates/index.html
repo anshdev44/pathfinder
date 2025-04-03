@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Finding Algorithms</title>
+    <!-- CSS files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animation libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-gradient"></div>
+    <div class="particles" id="particles"></div>
+    <div class="grid-overlay"></div>
+    
+    <!-- Network/Node Connections Visualization -->
+    <div class="network-container" id="network-container"></div>
+    
+    <!-- Interactive 3D Element -->
+    <div class="interactive-3d">
+        <div class="cube-wrapper">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-brand">
+                <i class="fas fa-map-marked-alt"></i> PathFinder
+            </a>
+            <button class="navbar-toggle" id="navbar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="navbar-nav" id="navbar">
+                <li class="nav-item">
+                    <a href="{{ url_for('index') }}" class="nav-link active">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('pathfinder_page') }}" class="nav-link">Path Finder</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/learn" class="nav-link">Learn</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero parallax-section" data-speed="0.5">
+        <div class="hero-content">
+            <h1 class="animate-in">Path Finding Algorithms</h1>
+            <div class="typewriter-container">
+                <p class="typewriter-text">Find the shortest path... in just a click! 🚀</p>
+            </div>
+            <p class="hero-description animate-in">Visualize how different algorithms find the optimal route between two points</p>
+            <div class="hero-buttons animate-in">
+                <a href="{{ url_for('pathfinder_page') }}" class="btn btn-primary pulse-btn">
+                    <span class="btn-text">Start Finding Paths</span>
+                    <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
+                </a>
+                <a href="{{ url_for('about') }}" class="btn btn-secondary glow-btn">
+                    <span class="btn-text">Learn More</span>
+                    <span class="btn-icon"><i class="fas fa-info-circle"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Explore Our Features</h2>
+            <div class="features-grid">
+                <!-- Feature Card 1 -->
+                <div class="feature-card" data-animation="fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3>Multiple Algorithms</h3>
+                    <p>Compare different pathfinding algorithms and see how they work in real-time. Includes Dijkstra's Algorithm and A* Algorithm.</p>
+                </div>
+                
+                <!-- Feature Card 2 -->
+                <div class="feature-card" data-animation="fade-in-up" data-delay="0.2s">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Interactive Map</h3>
+                    <p>Use our interactive map to visualize paths between locations with real geographical data and accurate distance calculations.</p>
+                </div>
+                
+                <!-- Feature Card 3 -->
+                <div class="feature-card" data-animation="fade-in-up" data-delay="0.4s">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Performance Metrics</h3>
+                    <p>Compare execution time, number of visited nodes, and path efficiency between different algorithms.</p>
+                </div>
+                
+                <!-- Feature Card 4 -->
+                <div class="feature-card" data-animation="fade-in-up" data-delay="0.6s">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3>Educational Resource</h3>
+                    <p>Learn about algorithm complexity, real-world applications, and the mathematical principles behind pathfinding.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step" data-animation="fade-in-right">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Select Locations</h3>
+                        <p>Choose your starting point and destination from our searchable interface or interactive map.</p>
+                    </div>
+                </div>
+                <div class="step" data-animation="fade-in-right" data-delay="0.2s">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Choose Algorithm</h3>
+                        <p>Select between Dijkstra's Algorithm for guaranteed shortest path or A* for improved efficiency.</p>
+                    </div>
+                </div>
+                <div class="step" data-animation="fade-in-right" data-delay="0.4s">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Visualize Path</h3>
+                        <p>Watch as the algorithm finds the optimal route between your points with detailed animations.</p>
+                    </div>
+                </div>
+                <div class="step" data-animation="fade-in-right" data-delay="0.6s">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>View Results</h3>
+                        <p>Get detailed information about the route including distance, time, and step-by-step directions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section Preview -->
+    <section class="about-preview parallax-section" data-speed="0.3">
+        <div class="container">
+            <div class="about-preview-content">
+                <div class="about-preview-text" data-animation="fade-in-left">
+                    <h2>Understanding Pathfinding</h2>
+                    <p>Pathfinding algorithms are computational procedures that calculate the shortest or most efficient route between two points. They're used in GPS navigation, video games, robotics, network routing, and countless other applications.</p>
+                    <a href="{{ url_for('about') }}" class="btn btn-outline">
+                        <span class="btn-text">Learn More</span>
+                        <span class="btn-icon"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                </div>
+                <div class="about-preview-image" data-animation="fade-in-right">
+                    <img src="https://images.unsplash.com/photo-1551808525-51a94da548ce?auto=format&fit=crop&w=500&q=80" alt="Network diagram showing pathfinding">
+                    <div class="floating-badge">
+                        <i class="fas fa-brain"></i> Algorithm Basics
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card" data-animation="zoom-in">
+                <h2>Ready to explore pathfinding?</h2>
+                <p>Try our interactive tool and see different algorithms in action.</p>
+                <a href="{{ url_for('pathfinder_page') }}" class="btn btn-primary pulse-btn">
+                    <span class="btn-text">Get Started Now</span>
+                    <span class="btn-icon"><i class="fas fa-play"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-map-marked-alt"></i> PathFinder
+                </div>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('index') }}" class="footer-link">Home</a></li>
+                    <li><a href="{{ url_for('about') }}" class="footer-link">About</a></li>
+                    <li><a href="{{ url_for('pathfinder_page') }}" class="footer-link">Path Finder</a></li>
+                </ul>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Path Finding Algorithms Project. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cursor Effect -->
+    <div class="cursor-effect"></div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <script>
+        // Cursor effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.querySelector('.cursor-effect');
+            const links = document.querySelectorAll('a, button');
+            
+            document.addEventListener('mousemove', function(e) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+            
+            links.forEach(link => {
+                link.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                });
+                link.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                });
+            });
+            
+            // Particles animation
+            const particlesContainer = document.createElement('div');
+            particlesContainer.className = 'particles';
+            document.body.appendChild(particlesContainer);
+            
+            // Create multiple particles
+            for (let i = 0; i < 30; i++) {
+                createParticle();
+            }
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random position
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                
+                // Random size (3px to 8px)
+                const size = Math.random() * 5 + 3;
+                
+                // Random opacity (0.1 to 0.5)
+                const opacity = Math.random() * 0.4 + 0.1;
+                
+                // Set styles
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.opacity = opacity;
+                
+                // Random animation duration (20s to 40s)
+                const duration = Math.random() * 20 + 20;
+                particle.style.animation = `moveParticle ${duration}s infinite ease-in-out`;
+                
+                // Random animation delay
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Animation on scroll
+            const animateElements = document.querySelectorAll('[data-animation]');
+            
+            function checkInView() {
+                animateElements.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                    
+                    if (rect.top <= windowHeight * 0.8) {
+                        el.classList.add('animate');
+                    }
+                });
+            }
+            
+            // Initial check
+            checkInView();
+            
+            // Check on scroll
+            window.addEventListener('scroll', checkInView);
+            
+            // Typewriter effect
+            if (document.querySelector('.typewriter-text')) {
+                const text = document.querySelector('.typewriter-text').textContent;
+                const typingDelay = 100;
+                const erasingDelay = 50;
+                const newTextDelay = 2000;
+                let textArrayIndex = 0;
+                let charIndex = 0;
+                
+                document.querySelector('.typewriter-text').textContent = '';
+                
+                function type() {
+                    if (charIndex < text.length) {
+                        document.querySelector('.typewriter-text').textContent += text.charAt(charIndex);
+                        charIndex++;
+                        setTimeout(type, typingDelay);
+                    }
+                }
+                
+                // Start typing
+                setTimeout(type, newTextDelay / 3);
+            }
+            
+            // Create particles
+            createParticles();
+            
+            // Network/Node Connections Visualization
+            function createNetworkVisualization() {
+                const container = document.getElementById('network-container');
+                const containerWidth = window.innerWidth;
+                const containerHeight = window.innerHeight;
+                const nodeCount = 15;
+                const nodes = [];
+                const connections = [];
+                
+                // Create nodes
+                for (let i = 0; i < nodeCount; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    
+                    // Random position within viewport
+                    const x = Math.random() * containerWidth;
+                    const y = Math.random() * containerHeight;
+                    
+                    node.style.left = `${x}px`;
+                    node.style.top = `${y}px`;
+                    
+                    // Add pulse effect to some nodes
+                    if (Math.random() > 0.7) {
+                        node.classList.add('pulse');
+                    }
+                    
+                    container.appendChild(node);
+                    nodes.push({ element: node, x, y });
+                }
+                
+                // Create connections between nodes that are close to each other
+                nodes.forEach((node, i) => {
+                    nodes.slice(i + 1).forEach(otherNode => {
+                        const dx = node.x - otherNode.x;
+                        const dy = node.y - otherNode.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // Only connect nodes that are reasonably close
+                        if (distance < containerWidth / 3) {
+                            const connection = document.createElement('div');
+                            connection.className = 'connection';
+                            
+                            // Position and rotate connection to connect the two nodes
+                            connection.style.left = `${node.x}px`;
+                            connection.style.top = `${node.y}px`;
+                            connection.style.width = `${distance}px`;
+                            
+                            // Calculate angle between nodes
+                            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                            connection.style.transform = `rotate(${angle + 180}deg)`;
+                            
+                            // Add animation to some connections
+                            if (Math.random() > 0.5) {
+                                connection.classList.add('active');
+                            }
+                            
+                            container.appendChild(connection);
+                            connections.push(connection);
+                        }
+                    });
+                });
+                
+                // Simulate pathfinding animation
+                simulatePathfinding(nodes, connections);
+            }
+            
+            // Simulate pathfinding by highlighting a path through the network
+            function simulatePathfinding(nodes, connections) {
+                // Get random subset of nodes for the path
+                const pathNodes = nodes
+                    .slice()
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, Math.min(6, nodes.length));
+                
+                let currentIndex = 0;
+                
+                // Function to highlight the next node in the path
+                function highlightNextNode() {
+                    // Clear previous highlights
+                    if (currentIndex > 0) {
+                        pathNodes[currentIndex - 1].element.classList.remove('highlight');
+                    }
+                    
+                    // If we reached the end of the path, start over
+                    if (currentIndex >= pathNodes.length) {
+                        currentIndex = 0;
+                        setTimeout(highlightNextNode, 2000);
+                        return;
+                    }
+                    
+                    // Highlight current node
+                    pathNodes[currentIndex].element.classList.add('highlight');
+                    
+                    // Find connections between current node and next node (if exists)
+                    if (currentIndex < pathNodes.length - 1) {
+                        const currentNode = pathNodes[currentIndex];
+                        const nextNode = pathNodes[currentIndex + 1];
+                        
+                        // Find and highlight the connection
+                        connections.forEach(connection => {
+                            const connLeft = parseInt(connection.style.left);
+                            const connTop = parseInt(connection.style.top);
+                            
+                            // Check if this connection is between the current and next node
+                            if ((Math.abs(connLeft - currentNode.x) < 10 && Math.abs(connTop - currentNode.y) < 10) ||
+                                (Math.abs(connLeft - nextNode.x) < 10 && Math.abs(connTop - nextNode.y) < 10)) {
+                                connection.classList.add('highlight');
+                                setTimeout(() => {
+                                    connection.classList.remove('highlight');
+                                }, 2000);
+                            }
+                        });
+                    }
+                    
+                    currentIndex++;
+                    setTimeout(highlightNextNode, 1000);
+                }
+                
+                // Start the animation after a delay
+                setTimeout(highlightNextNode, 3000);
+            }
+            
+            // Initialize network visualization
+            createNetworkVisualization();
+        });
+    </script>
+</body>
+</html>

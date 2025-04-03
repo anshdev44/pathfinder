@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn | Shortest Path Algorithms</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/learn.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-gradient"></div>
+    <div class="stars"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-text">Path<span class="highlight">Finder</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/about" class="nav-link">About</a>
+            <a href="/learn" class="nav-link active">Learn</a>
+            <a href="/pathfinder" class="nav-link">Path Finder</a>
+        </div>
+    </nav>
+
+    <!-- Introduction Section -->
+    <section id="introduction" class="section">
+        <div class="section-container">
+            <h2 class="section-title">Introduction to Shortest Path Algorithms</h2>
+            <p>Shortest path algorithms are essential in various fields, from network routing to urban planning. They help find the most efficient route between two points, saving time and resources.</p>
+        </div>
+    </section>
+
+    <!-- Dijkstra's Algorithm Section -->
+    <section id="dijkstra" class="section">
+        <div class="section-container">
+            <h2 class="section-title">Dijkstra's Algorithm</h2>
+            <p>Dijkstra's algorithm is a popular method for finding the shortest path in a graph with non-negative edge weights. It explores all possible paths to ensure the optimal solution.</p>
+            <div class="algorithm-details">
+                <h3>Step-by-Step Explanation</h3>
+                <ol>
+                    <li>Initialize distances from the source to all vertices as infinite, except the source itself, which is set to zero.</li>
+                    <li>Use a priority queue to explore the nearest unvisited vertex.</li>
+                    <li>Update the distance to each neighboring vertex if a shorter path is found.</li>
+                    <li>Repeat until all vertices are visited.</li>
+                </ol>
+                <h3>Time Complexity</h3>
+                <p>O(V^2) for a simple implementation, or O(E + V log V) with a priority queue.</p>
+                <h3>Use Cases</h3>
+                <ul>
+                    <li>Network routing</li>
+                    <li>Map services</li>
+                    <li>Robotics</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- A* Algorithm Section -->
+    <section id="astar" class="section">
+        <div class="section-container">
+            <h2 class="section-title">A* Algorithm</h2>
+            <p>The A* algorithm improves upon Dijkstra's by using heuristics to guide the search, making it more efficient in many cases.</p>
+            <div class="algorithm-details">
+                <h3>Heuristics and Performance</h3>
+                <p>A* uses a heuristic function to estimate the cost to reach the goal, allowing it to prioritize paths that seem more promising.</p>
+                <h3>Comparison with Dijkstra's</h3>
+                <p>While Dijkstra's explores all paths, A* focuses on the most promising ones, often resulting in faster solutions.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table Section -->
+    <section id="comparison" class="section">
+        <div class="section-container">
+            <h2 class="section-title">Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Pros</th>
+                        <th>Cons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dijkstra's</td>
+                        <td>Guaranteed optimal solution, works on all graphs with non-negative weights</td>
+                        <td>Can be slow for large graphs</td>
+                    </tr>
+                    <tr>
+                        <td>A*</td>
+                        <td>Faster with a good heuristic, focuses on promising paths</td>
+                        <td>Requires a heuristic, may not be optimal without a good one</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Interactive Examples Section -->
+    <section id="examples" class="section">
+        <div class="section-container">
+            <h2 class="section-title">Interactive Examples</h2>
+            <div class="code-snippets">
+                <h3>C++ Example</h3>
+                <pre><code class="language-cpp">// C++ code for Dijkstra's algorithm
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+using namespace std;
+
+void dijkstra(vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; &amp;graph, int src) {
+    // Implementation here
+}</code></pre>
+                <h3>JavaScript Example</h3>
+                <pre><code class="language-javascript">// JavaScript code for A* algorithm
+function aStar(start, goal) {
+    // Implementation here
+}</code></pre>
+            </div>
+            <div class="visual-explanations">
+                <p>Visual explanations will be added here to demonstrate how each algorithm works step-by-step.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Additional Resources Section -->
+    <section id="resources" class="section">
+        <div class="section-container">
+            <h2 class="section-title">Additional Resources</h2>
+            <ul>
+                <li><a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm" target="_blank">Dijkstra's Algorithm on Wikipedia</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="_blank">A* Algorithm on Wikipedia</a></li>
+                <li><a href="https://www.geeksforgeeks.org/" target="_blank">GeeksforGeeks</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="logo-text">Path<span class="highlight">Finder</span></span>
+            </div>
+            <div class="footer-links">
+                <a href="/" class="footer-link">Home</a>
+                <a href="/about" class="footer-link">About</a>
+                <a href="/learn" class="footer-link">Learn</a>
+                <a href="/pathfinder" class="footer-link">Path Finder</a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2023 PathFinder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Custom cursor -->
+    <div class="custom-cursor"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/learn.js') }}"></script>
+</body>
+</html> 

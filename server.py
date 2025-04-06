@@ -1,20 +1,38 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
-import config # Import your config file
-from pathfinding import PathFinder # Import your PathFinder class
+import sys
+import traceback
+
+try:
+    import config  # Import the config file
+    print("Successfully imported config module")
+except Exception as e:
+    print(f"Error importing config: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+
+try:
+    from pathfinding import PathFinder  # Import the PathFinder class
+    print("Successfully imported PathFinder class")
+except Exception as e:
+    print(f"Error importing PathFinder: {e}")
+    traceback.print_exc()
+    sys.exit(1)
 
 # Initialize Flask app
 app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
-CORS(app) # Enable Cross-Origin Resource Sharing
+CORS(app)  # Enable Cross-Origin Resource Sharing
 
-# --- Initialize PathFinder ---
-# It's important to initialize PathFinder only once
+print("Flask app initialized")
+
+# Initialize PathFinder
+pathfinder_instance = None
 try:
+    print(f"Attempting to initialize PathFinder with API key: {config.GOOGLE_MAPS_API_KEY[:5]}...")
     pathfinder_instance = PathFinder(config.GOOGLE_MAPS_API_KEY)
-    # Log available states and some cities for debugging
     print("\n===== INITIALIZATION INFO =====")
     print("Available states:", pathfinder_instance.get_all_states())
     print("Example cities for Madhya Pradesh:", pathfinder_instance.get_cities_by_state("Madhya Pradesh"))
@@ -22,19 +40,21 @@ try:
     print("==============================\n")
 except ValueError as e:
     print(f"FATAL ERROR initializing PathFinder: {e}")
-    # In a real app, you might exit or provide a fallback
+    traceback.print_exc()
     pathfinder_instance = None
 except RuntimeError as e:
-     print(f"FATAL ERROR initializing Google Maps client: {e}")
-     pathfinder_instance = None
+    print(f"FATAL ERROR initializing Google Maps client: {e}")
+    traceback.print_exc()
+    pathfinder_instance = None
 except Exception as e:
     print(f"An unexpected FATAL ERROR occurred during PathFinder initialization: {e}")
+    traceback.print_exc()
     pathfinder_instance = None
 
-# --- Basic Page Routes ---
+# Basic Page Routes
 @app.route('/')
 def index():
-    # Pass API key to template if needed there (e.g., for frontend maps)
+    # Pass API key to template if needed for frontend maps
     return render_template('index.html', google_maps_api_key=config.GOOGLE_MAPS_API_KEY)
 
 @app.route('/about')
@@ -49,16 +69,12 @@ def pathfinder_page():
 def learn():
     return render_template('learn.html', google_maps_api_key=config.GOOGLE_MAPS_API_KEY)
 
-# Serve static files (like CSS, JS) correctly
-# This might not be strictly necessary if Flask's default static handling works,
-# but can be helpful for debugging or specific configurations.
+# Serve static files
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory(app.static_folder, filename)
 
-
-# --- API Routes ---
-
+# API Routes
 @app.route('/api/states', methods=['GET'])
 def get_states():
     """API endpoint to get the list of available states."""
@@ -71,7 +87,6 @@ def get_states():
         print(f"Error in /api/states: {e}")
         return jsonify({"error": "Internal server error fetching states"}), 500
 
-
 @app.route('/api/cities/<state_name>', methods=['GET'])
 def get_cities(state_name):
     """API endpoint to get cities for a specific state."""
@@ -81,14 +96,13 @@ def get_cities(state_name):
         return jsonify({"error": "State name not provided"}), 400
 
     try:
-        # Basic sanitization (consider more robust validation if needed)
+        # Basic sanitization
         safe_state_name = state_name.strip()
         cities = pathfinder_instance.get_cities_by_state(safe_state_name)
         return jsonify(cities)
     except Exception as e:
         print(f"Error in /api/cities/{state_name}: {e}")
         return jsonify({"error": f"Internal server error fetching cities for {state_name}"}), 500
-
 
 @app.route('/api/find_path', methods=['POST'])
 def find_path_api():
@@ -102,30 +116,30 @@ def find_path_api():
     data = request.get_json()
     start_id = data.get('start_id')
     end_id = data.get('end_id')
-    algorithm = data.get('algorithm', 'dijkstra') # Default to dijkstra
+    algorithm = data.get('algorithm', 'dijkstra')  # Default to dijkstra
     
     print(f"Received path request with start_id={start_id}, end_id={end_id}, algorithm={algorithm}")
     print(f"Available nodes: {list(pathfinder_instance.nodes.keys())[:10]}... (showing first 10)")
 
-    # --- Input Validation ---
+    # Input Validation
     required_fields = ['start_id', 'end_id']
     if not all(field in data for field in required_fields):
         missing = [field for field in required_fields if field not in data]
         return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 
     if not isinstance(start_id, str) or not isinstance(end_id, str):
-         return jsonify({"error": "start_id and end_id must be strings"}), 400
+        return jsonify({"error": "start_id and end_id must be strings"}), 400
 
     # Validate ID format (simple check)
     if '_' not in start_id or '_' not in end_id:
-         return jsonify({"error": "Invalid ID format. Expected 'city_state'."}), 400
+        return jsonify({"error": "Invalid ID format. Expected 'city_state'."}), 400
 
     if algorithm not in ['dijkstra', 'a_star']:
         return jsonify({"error": "Invalid algorithm. Choose 'dijkstra' or 'a_star'."}), 400
 
     print(f"API Request: Find path from {start_id} to {end_id} using {algorithm}")
 
-    # --- Call Pathfinding Logic ---
+    # Call Pathfinding Logic
     try:
         import threading
         import time
@@ -170,7 +184,7 @@ def find_path_api():
         pathfinding_thread.start()
         
         # Wait for the thread to complete (with timeout)
-        max_wait_time = 25  # seconds
+        max_wait_time = 60  # seconds (increased from 25)
         wait_interval = 0.5  # seconds
         elapsed = 0
         
@@ -180,7 +194,9 @@ def find_path_api():
             
         if pathfinding_thread.is_alive():
             # Thread is still running after timeout
-            return jsonify({"error": "Path calculation timed out. Please try again with closer cities."}), 408
+            return jsonify({
+                "error": "Path calculation timed out. The cities you selected might be too far apart or require a complex route. Try cities that are closer together or use the A* algorithm for better performance."
+            }), 408
             
         if result["error"]:
             return jsonify({"error": result["error"]}), 500
@@ -189,28 +205,37 @@ def find_path_api():
             # Path finding returned empty, but wasn't start == end
             return jsonify({"error": f"No path found between {start_id} and {end_id}"}), 404
 
+        # Prepare coordinates dictionary for the frontend
+        coordinates = {}
+        for node_id in result["path"]:
+            if node_id in pathfinder_instance.nodes:
+                node = pathfinder_instance.nodes[node_id]
+                coordinates[node_id] = {
+                    "lat": node.lat,
+                    "lng": node.lng,
+                    "name": node.name
+                }
+
         return jsonify({
             "path": result["path"],
-            "distance": result["distance"], # In meters
-            "time": result["time"]     # In minutes
+            "distance": result["distance"],  # In meters
+            "time": result["time"],          # In minutes
+            "coordinates": coordinates       # City coordinates for map display
         })
 
     except ValueError as e:
         # Handle errors like node not found from PathFinder
         print(f"ValueError in find_path: {e}")
-        return jsonify({"error": str(e)}), 404 # Use 404 for 'not found' type errors
+        return jsonify({"error": str(e)}), 404  # Use 404 for 'not found' type errors
     except Exception as e:
         # Catch unexpected errors during pathfinding
         print(f"Unexpected error during find_path for {start_id} to {end_id}: {e}")
-        # Log the full traceback here in a real application
         import traceback
         traceback.print_exc()
         return jsonify({"error": "An internal server error occurred during path calculation."}), 500
 
-
-# --- Run the App ---
+# Run the App
 if __name__ == '__main__':
-    # Debug=True allows auto-reloading and provides detailed error pages.
-    # Set debug=False in production!
-    # Use host='0.0.0.0' to make the server accessible on your network.
+    print("Starting Flask application...")
+    # Set debug=False in production
     app.run(debug=True, host='0.0.0.0', port=5000) 

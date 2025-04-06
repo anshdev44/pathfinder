@@ -124,25 +124,65 @@
     <script src="{{ url_for('static', filename='js/pathfinder.js') }}"></script>
     <!-- Google Maps API -->
     <script>
+    // Track initialization status
+    window.mapsApiLoaded = false;
+    window.mapsApiLoadAttempts = 0;
+    const MAX_API_LOAD_ATTEMPTS = 3;
+    
     // Initialize map when the API is loaded
     function initMap() {
         console.log('Google Maps API loaded callback triggered');
-        // Map will be initialized when needed
         window.mapsApiLoaded = true;
+        
+        // Verify Google Maps objects exist
+        if (window.google && window.google.maps) {
+            console.log('Google Maps API loaded successfully');
+            
+            // Check if we need to initialize map immediately (e.g., if a path was already requested)
+            if (window.pendingPathData) {
+                console.log('Initializing map with pending path data');
+                initializeMap(window.pendingPathData);
+                showRoute(window.pendingPathData);
+                window.pendingPathData = null;
+            }
+        } else {
+            console.error('Google Maps API loaded callback triggered but API objects not available');
+        }
     }
 
     // Load Google Maps API with error handling
     function loadGoogleMapsAPI() {
-        console.log('Loading Google Maps API...');
+        if (window.mapsApiLoadAttempts >= MAX_API_LOAD_ATTEMPTS) {
+            console.error('Exceeded maximum Google Maps API load attempts');
+            alert('Failed to load Google Maps after multiple attempts. Please check your API key and refresh the page.');
+            return;
+        }
+        
+        window.mapsApiLoadAttempts++;
+        console.log(`Loading Google Maps API (attempt ${window.mapsApiLoadAttempts})...`);
+        
+        // Check if API key is set
+        const apiKey = "{{ google_maps_api_key }}";
+        
+        if (!apiKey || apiKey === "PLACEHOLDER_API_KEY" || apiKey === "YOUR_API_KEY_HERE") {
+            console.error('Invalid API key detected:', apiKey);
+            alert('Invalid Google Maps API key. Please update your API key in config.py and restart the server.');
+            return;
+        }
+        
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places,directions&callback=initMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,directions&callback=initMap&v=weekly`;
         script.async = true;
         script.defer = true;
         
         // Add error handling
         script.onerror = function() {
-            console.error('Google Maps API failed to load!');
-            alert('Could not load Google Maps. Please check your internet connection and try again.');
+            console.error(`Google Maps API failed to load (attempt ${window.mapsApiLoadAttempts})`);
+            if (window.mapsApiLoadAttempts < MAX_API_LOAD_ATTEMPTS) {
+                setTimeout(loadGoogleMapsAPI, 2000); // Retry after 2 seconds
+            } else {
+                alert('Could not load Google Maps. Please check your API key and internet connection.');
+            }
         };
         
         document.head.appendChild(script);

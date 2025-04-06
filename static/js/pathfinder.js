@@ -370,6 +370,18 @@ function initFormSubmit() {
                 console.log('Storing path data:', data.path);
                 resultsContainer.__pathData = data.path || [];
                 
+                // Store city coordinates for use in the map display
+                if (!window.cityCoordinates) {
+                    window.cityCoordinates = {};
+                }
+                
+                // Create a mapping from city IDs to coordinates
+                if (data.coordinates) {
+                    Object.entries(data.coordinates).forEach(([id, coords]) => {
+                        window.cityCoordinates[id] = coords;
+                    });
+                }
+                
                 resultsContainer.innerHTML = `
                     <h3>Path Found using ${algorithm === 'dijkstra' ? 'Dijkstra\'s Algorithm' : 'A* Algorithm'}</h3>
                     <div class="path-details">
@@ -398,7 +410,7 @@ function initFormSubmit() {
                         </svg>
                     </div>
                     <div class="path-buttons">
-                        <button type="button" onclick="showRoute('${startCity}, ${startState}', '${endCity}, ${endState}')" class="btn-primary">
+                        <button type="button" id="viewOnMapBtn" class="btn-primary">
                             View on Map
                         </button>
                         <button type="button" onclick="resetForm()" class="btn-secondary">
@@ -407,11 +419,13 @@ function initFormSubmit() {
                     </div>
                 `;
                 
-                // Debug: Check if the path data is actually attached
-                console.log('Stored path data check:', resultsContainer.__pathData);
-                if (resultsContainer.__pathData && resultsContainer.__pathData.length > 0) {
-                    console.log('First node stored:', resultsContainer.__pathData[0]);
-                    console.log('Last node stored:', resultsContainer.__pathData[resultsContainer.__pathData.length - 1]);
+                // Add event listener to View on Map button
+                const viewOnMapBtn = document.getElementById('viewOnMapBtn');
+                if (viewOnMapBtn) {
+                    viewOnMapBtn.addEventListener('click', function() {
+                        // Pass the path data to the showRoute function
+                        showRoute(data.path);
+                    });
                 }
             }
             
@@ -453,69 +467,161 @@ function formatCityId(city, state) {
     return `${cityPart}_${statePart}`;
 }
 
-// Function to show route on map
-function showRoute(start, end) {
-    console.log('showRoute called with:', { start, end });
+// Function to show a route on the map
+function showRoute(pathData) {
+    console.log('showRoute called with:', pathData);
     
-    // Show the map container first
+    // Store pending path data if map is not initialized yet
+    if (!window.map || !window.directionsService || !window.directionsRenderer) {
+        console.log('Map not initialized yet, storing path data for later');
+        window.pendingPathData = pathData;
+        
+        // Try to initialize map if Google Maps API is loaded
+        if (window.google && window.google.maps) {
+            console.log('Google Maps API is loaded, initializing map now');
+            if (initializeMap(pathData)) {
+                // If initialization succeeded, clear pending data
+                window.pendingPathData = null;
+            } else {
+                console.error('Map initialization failed');
+                return;
+            }
+        } else {
+            console.error('Google Maps API not loaded yet');
+            alert('Google Maps API is not loaded yet. Please try again in a few seconds.');
+            return;
+        }
+    }
+    
+    // Make sure map container is visible
     const mapContainer = document.querySelector('.map-container');
     if (mapContainer) {
-        // Get path data from the results container if available
-        const resultsContainer = document.getElementById('pathResults');
-        const pathData = resultsContainer.__pathData || [];
-        console.log('Path data available:', pathData);
-        
-        mapContainer.classList.add('active');
         mapContainer.style.display = 'block';
+        mapContainer.classList.add('active');
         
         // Show loading indicator
         const loadingIndicator = document.querySelector('.map-loading');
         if (loadingIndicator) {
             loadingIndicator.style.display = 'flex';
         }
-        
-        // Initialize map if needed
-        if (!window.map) {
-            console.log('Map not initialized yet, calling initMap()');
-            initMap();
-        } else {
-            console.log('Map already initialized');
-        }
-        
-        // If we have path data with coordinates, use it directly
-        if (pathData.length >= 2) {
-            console.log('Using path data coordinates for route');
-            const coordinates = pathData.map(point => {
-                // Ensure coordinates are numbers
-                const lat = parseFloat(point.lat);
-                const lng = parseFloat(point.lng);
-                console.log('Coordinate point:', { lat, lng, original: point });
-                if (isNaN(lat) || isNaN(lng)) {
-                    console.error('Invalid coordinates in path data:', point);
-                }
-                return { lat, lng };
-            });
-            
-            calculateAndDisplayRoute(
-                coordinates[0],
-                coordinates[coordinates.length - 1],
-                coordinates
-            );
-        } else {
-            // Fallback to city names if no coordinates
-            console.log('No path data coordinates, using city names:', start, end);
-            calculateAndDisplayRoute(start, end);
-        }
     } else {
         console.error('Map container not found!');
+        return;
+    }
+    
+    try {
+        // Check if pathData has valid cities and coordinates
+        if (!pathData || !Array.isArray(pathData) || pathData.length < 2) {
+            console.error('Invalid path data:', pathData);
+            alert('Invalid path data. Please try again with different cities.');
+            
+            // Hide loading indicator
+            const loadingIndicator = document.querySelector('.map-loading');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            return;
+        }
+        
+        // First try to get city names from path IDs
+        const startCityId = pathData[0];
+        const endCityId = pathData[pathData.length - 1];
+        
+        console.log('Path data available:', pathData);
+        
+        // Convert city IDs to display names (Lucknow, Uttar Pradesh format)
+        function cityIdToDisplayName(cityId) {
+            if (!cityId || typeof cityId !== 'string') return null;
+            
+            // Extract city and state parts
+            const parts = cityId.split('_');
+            if (parts.length !== 2) return null;
+            
+            // Capitalize first letter of each word
+            const city = parts[0].replace(/\b\w/g, c => c.toUpperCase());
+            const state = parts[1].replace(/\b\w/g, c => c.toUpperCase())
+                .replace('uttarpradesh', 'Uttar Pradesh')
+                .replace('madhyapradesh', 'Madhya Pradesh')
+                .replace('tamilnadu', 'Tamil Nadu')
+                .replace('westbengal', 'West Bengal');
+                
+            return `${city}, ${state}`;
+        }
+        
+        const startCity = cityIdToDisplayName(startCityId);
+        const endCity = cityIdToDisplayName(endCityId);
+        
+        console.log('Using city names for route:', { startCity, endCity });
+        
+        // If we have valid city names, use those for the route
+        if (startCity && endCity) {
+            calculateAndDisplayRoute(startCity, endCity);
+            return;
+        }
+        
+        // Fallback: Try to use coordinates if available
+        console.log('Using path data coordinates for route');
+        
+        // Prepare waypoints from coordinates
+        const waypoints = [];
+        let validCoordinates = true;
+        
+        pathData.forEach((cityId, index) => {
+            // Try to find the city coordinates
+            const lat = window.cityCoordinates && window.cityCoordinates[cityId] ? 
+                window.cityCoordinates[cityId].lat : null;
+                
+            const lng = window.cityCoordinates && window.cityCoordinates[cityId] ? 
+                window.cityCoordinates[cityId].lng : null;
+            
+            if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                waypoints.push({ lat: parseFloat(lat), lng: parseFloat(lng), original: cityId });
+            } else {
+                console.error(`Invalid coordinates in path data: ${cityId}`);
+                validCoordinates = false;
+            }
+        });
+        
+        if (!validCoordinates || waypoints.length < 2) {
+            console.error('Not enough valid coordinates in path data');
+            alert('Could not get valid coordinates for the selected cities. Please try different cities.');
+            
+            // Hide loading indicator
+            const loadingIndicator = document.querySelector('.map-loading');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            return;
+        }
+        
+        console.log('Coordinate points:', waypoints);
+        
+        // Use first and last waypoints as start and end
+        const start = waypoints[0];
+        const end = waypoints[waypoints.length - 1];
+        
+        calculateAndDisplayRoute(start, end, waypoints);
+    } catch (error) {
+        console.error('Error showing route:', error);
+        alert('An error occurred while showing the route: ' + error.message);
+        
+        // Hide loading indicator
+        const loadingIndicator = document.querySelector('.map-loading');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
     }
 }
 
 // Function to calculate and display route on the map
 function calculateAndDisplayRoute(start, end, waypoints) {
-    if (!window.directionsService || !window.directionsRenderer) {
-        console.error('Google Maps services not initialized');
-        alert('Map services are not initialized yet. Please try again.');
+    console.log('calculateAndDisplayRoute called with:', { start, end, waypoints });
+
+    // Check if Google Maps is initialized
+    if (!window.google || !window.google.maps) {
+        console.error('Google Maps API not loaded yet');
+        alert('Google Maps API could not be loaded. Please check your API key in config.py and restart the server.');
+        
         // Hide loading indicator
         const loadingIndicator = document.querySelector('.map-loading');
         if (loadingIndicator) {
@@ -524,7 +630,47 @@ function calculateAndDisplayRoute(start, end, waypoints) {
         return;
     }
     
+    // Check if directions services are initialized
+    if (!window.directionsService || !window.directionsRenderer) {
+        console.error('Google Maps services not initialized');
+        alert('Map services are not initialized. Please ensure you have a valid Google Maps API key with Directions API enabled.');
+        // Hide loading indicator
+        const loadingIndicator = document.querySelector('.map-loading');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        return;
+    }
+    
+    // Check if waypoints have valid coordinates
+    if (waypoints && waypoints.length > 0) {
+        let hasInvalidCoordinates = false;
+        waypoints.forEach((point, index) => {
+            if (!point || isNaN(point.lat) || isNaN(point.lng)) {
+                console.error(`Invalid coordinate at index ${index}:`, point);
+                hasInvalidCoordinates = true;
+            }
+        });
+        
+        if (hasInvalidCoordinates) {
+            alert('Some coordinates could not be loaded. Please try selecting different cities or check your browser console for details.');
+            // Hide loading indicator
+            const loadingIndicator = document.querySelector('.map-loading');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            return;
+        }
+    }
+    
     const useCoordinates = typeof start === 'object' && start.lat && start.lng;
+    
+    console.log('Route request configuration:', {
+        useCoordinates,
+        start: useCoordinates ? start : start + ", India",
+        end: useCoordinates ? end : end + ", India",
+        travelMode: 'DRIVING'
+    });
     
     const request = {
         origin: useCoordinates ? start : start + ", India",
@@ -796,12 +942,20 @@ function initAutocomplete() {
 // let directionsRenderer;
 
 function initializeMap(pathData) {
-    console.log('initMap called, checking window.google availability');
+    console.log('initializeMap called with path data:', pathData);
+    
+    // Check if we already have valid map instances
+    if (window.map && window.directionsService && window.directionsRenderer) {
+        console.log('Map already initialized, refreshing');
+        google.maps.event.trigger(window.map, 'resize');
+        return true;
+    }
+    
+    // Check if Google Maps API is loaded
     if (!window.google || !window.google.maps) {
         console.error('Google Maps API not loaded yet!');
-        // Retry after a short delay
-        setTimeout(initMap, 1000);
-        return;
+        alert('Google Maps API is not loaded. Please check your API key and internet connection.');
+        return false;
     }
     
     console.log('Google Maps API available, initializing map');
@@ -810,7 +964,7 @@ function initializeMap(pathData) {
         const mapElement = document.getElementById('map');
         if (!mapElement) {
             console.error('Map element not found!');
-            return;
+            return false;
         }
         
         // Check if the map container has dimensions
@@ -821,64 +975,68 @@ function initializeMap(pathData) {
             console.warn('Map container has zero dimension!');
             // Force a minimum height
             mapElement.style.height = '400px';
+            mapElement.style.width = '100%';
         }
         
-        // Initialize the map if not already done
-        if (!window.map) {
-            console.log('Creating new Google Map instance');
-            window.map = new google.maps.Map(mapElement, {
-                center: { lat: 20.5937, lng: 78.9629 }, // Center of India
-                zoom: 5,
-                styles: [
-                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-                    {
-                        featureType: "administrative.locality",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#d59563" }],
-                    },
-                    {
-                        featureType: "road",
-                        elementType: "geometry",
-                        stylers: [{ color: "#38414e" }],
-                    },
-                    {
-                        featureType: "road",
-                        elementType: "geometry.stroke",
-                        stylers: [{ color: "#212a37" }],
-                    },
-                    {
-                        featureType: "road",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#9ca5b3" }],
-                    },
-                    {
-                        featureType: "water",
-                        elementType: "geometry",
-                        stylers: [{ color: "#17263c" }],
-                    },
-                ],
-            });
-            
-            console.log('Creating directions service and renderer');
-            window.directionsService = new google.maps.DirectionsService();
-            window.directionsRenderer = new google.maps.DirectionsRenderer({
-                map: window.map,
-                suppressMarkers: false,
-                polylineOptions: {
-                    strokeColor: '#8a2be2', // Purple color
-                    strokeWeight: 4
-                }
-            });
-            
-            console.log('Map initialized successfully');
-        } else {
-            console.log('Map already exists, refreshing');
-            google.maps.event.trigger(window.map, 'resize');
-        }
+        // Initialize the map
+        console.log('Creating new Google Map instance');
+        window.map = new google.maps.Map(mapElement, {
+            center: { lat: 20.5937, lng: 78.9629 }, // Center of India
+            zoom: 5,
+            styles: [
+                { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                {
+                    featureType: "administrative.locality",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#d59563" }],
+                },
+                {
+                    featureType: "road",
+                    elementType: "geometry",
+                    stylers: [{ color: "#38414e" }],
+                },
+                {
+                    featureType: "road",
+                    elementType: "geometry.stroke",
+                    stylers: [{ color: "#212a37" }],
+                },
+                {
+                    featureType: "road",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#9ca5b3" }],
+                },
+                {
+                    featureType: "water",
+                    elementType: "geometry",
+                    stylers: [{ color: "#17263c" }],
+                },
+            ],
+        });
+        
+        console.log('Creating directions service and renderer');
+        window.directionsService = new google.maps.DirectionsService();
+        window.directionsRenderer = new google.maps.DirectionsRenderer({
+            map: window.map,
+            suppressMarkers: false,
+            polylineOptions: {
+                strokeColor: '#8a2be2', // Purple color
+                strokeWeight: 4
+            }
+        });
+        
+        console.log('Map initialized successfully');
+        
+        // Make the map container visible
+        mapElement.style.display = 'block';
+        mapElement.classList.add('active');
+        
+        return true;
     } catch (error) {
         console.error('Error initializing map:', error);
+        alert('Failed to initialize map: ' + error.message);
+        return false;
     }
 }
 

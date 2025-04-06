@@ -6,6 +6,13 @@ from math import radians, sin, cos, sqrt, atan2
 import time
 import signal
 import sys
+import logging
+
+# Configure logging to reduce terminal output
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger('pathfinder')
+# Set city distance messages to DEBUG level (won't show by default)
+logger.setLevel(logging.INFO)
 
 @dataclass(order=True)
 class PriorityNode:
@@ -66,6 +73,7 @@ class PathFinder:
             'Kerala': ['Thiruvananthapuram', 'Kochi', 'Kozhikode', 'Thrissur'],
             'Bihar': ['Patna', 'Gaya', 'Muzaffarpur', 'Bhagalpur'],
             'Odisha': ['Bhubaneswar', 'Cuttack', 'Rourkela', 'Puri'],
+            'Arunachal Pradesh': ['Itanagar', 'Naharlagun', 'Tawang', 'Pasighat'],
         }
         self.states = list(self.cities_by_state.keys())
 
@@ -102,6 +110,10 @@ class PathFinder:
             'patna_bihar': {'lat': 25.5941, 'lng': 85.1376},
             'gurgaon_haryana': {'lat': 28.4595, 'lng': 77.0266},
             'faridabad_haryana': {'lat': 28.4089, 'lng': 77.3178},
+            'itanagar_arunachalpradesh': {'lat': 27.0844, 'lng': 93.6053},
+            'naharlagun_arunachalpradesh': {'lat': 27.1039, 'lng': 93.6966},
+            'tawang_arunachalpradesh': {'lat': 27.5859, 'lng': 91.8662},
+            'pasighat_arunachalpradesh': {'lat': 28.0654, 'lng': 95.3280},
         }
         self.initialize_nodes()
 
@@ -114,7 +126,7 @@ class PathFinder:
 
     def initialize_nodes(self):
         """Populate nodes using cities_by_state and fetch coordinates if needed."""
-        print("Initializing nodes...")
+        logger.info("Initializing nodes...")
         nodes_added = 0
         for state, cities in self.cities_by_state.items():
             for city in cities:
@@ -127,29 +139,29 @@ class PathFinder:
                     lat, lng = coords['lat'], coords['lng']
                 else:
                     try:
-                        print(f"Fetching coordinates for {display_name}...")
+                        logger.debug(f"Fetching coordinates for {display_name}...")
                         geocode_result = self.gmaps.geocode(f"{city}, {state}, India")
                         if geocode_result:
                             location = geocode_result[0]['geometry']['location']
                             lat, lng = location['lat'], location['lng']
                             # Add to known coordinates for future use
                             self.known_coordinates[city_id] = {'lat': lat, 'lng': lng}
-                            print(f"Got coordinates for {display_name}: {lat}, {lng}")
+                            logger.debug(f"Got coordinates for {display_name}: {lat}, {lng}")
                         else:
-                            print(f"Warning: Could not geocode {display_name}. Skipping.")
+                            logger.warning(f"Could not geocode {display_name}. Skipping.")
                             continue
                         time.sleep(0.05)  # Small delay to respect API rate limits
                     except Exception as e:
-                        print(f"Error geocoding {display_name}: {e}")
+                        logger.warning(f"Error geocoding {display_name}: {e}")
                         continue
 
                 if lat is not None and lng is not None:
                     self.nodes[city_id] = Node(id=city_id, name=display_name, lat=lat, lng=lng)
                     nodes_added += 1
 
-        print(f"Node initialization complete. Added {nodes_added} nodes.")
+        logger.info(f"Node initialization complete. Added {nodes_added} nodes.")
         if not self.nodes:
-            print("WARNING: No nodes were initialized. Check city/state data and API key.")
+            logger.error("No nodes were initialized. Check city/state data and API key.")
             raise ValueError("Failed to initialize any nodes. Check Google Maps API key.")
 
     def _haversine_distance(self, node1: Node, node2: Node) -> float:
@@ -184,7 +196,8 @@ class PathFinder:
         
         # For very far cities, don't try the API call
         if haversine_dist > 500000:  # 500 km in meters - reduced from 1000km for better performance
-            print(f"Cities too far apart ({haversine_dist/1000:.1f} km), using Haversine: {node1.name} <-> {node2.name}")
+            # Use debug level for city distance messages to reduce terminal output
+            logger.debug(f"Cities too far apart ({haversine_dist/1000:.1f} km), using Haversine: {node1.name} <-> {node2.name}")
             self.distances[pair_key] = haversine_dist
             return haversine_dist
             
@@ -206,12 +219,12 @@ class PathFinder:
                     return distance
             
             # If API call fails or returns no route, fall back to haversine
-            print(f"No driving route found, using straight-line: {node1.name} <-> {node2.name}")
+            logger.debug(f"No driving route found, using straight-line: {node1.name} <-> {node2.name}")
             self.distances[pair_key] = haversine_dist
             return haversine_dist
                 
         except Exception as e:
-            print(f"Error fetching driving distance: {e}")
+            logger.warning(f"Error fetching driving distance: {e}")
             self.distances[pair_key] = haversine_dist
             return haversine_dist
 
@@ -302,7 +315,7 @@ class PathFinder:
             if nodes_processed % 10 == 0:
                 elapsed = time.time() - start_time
                 if elapsed > 10:  # If more than 10 seconds have passed
-                    print(f"Processed {nodes_processed} nodes, current distance: {self.nodes[current_id].g_cost/1000:.1f}km")
+                    logger.debug(f"Processed {nodes_processed} nodes, current distance: {self.nodes[current_id].g_cost/1000:.1f}km")
             
             # Skip if already processed
             if current_id in closed_set:
@@ -420,7 +433,7 @@ class PathFinder:
             if nodes_processed % 10 == 0:
                 elapsed = time.time() - start_time
                 if elapsed > 10:  # If more than 10 seconds have passed
-                    print(f"Processed {nodes_processed} nodes, current distance: {self.nodes[current_id].g_cost/1000:.1f}km")
+                    logger.debug(f"Processed {nodes_processed} nodes, current distance: {self.nodes[current_id].g_cost/1000:.1f}km")
             
             # Skip if already processed
             if current_id in closed_set:

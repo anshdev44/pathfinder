@@ -1,5 +1,33 @@
 // ======== DOCUMENT READY ========
 document.addEventListener('DOMContentLoaded', function() {
+    // Add CSS styles for path results including calculation time highlight
+    const resultsStyle = document.createElement('style');
+    resultsStyle.textContent = `
+        .path-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .path-label {
+            flex: 0 0 120px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .path-value {
+            flex: 1;
+        }
+        .calculation-time {
+            color: #8a2be2;
+            font-weight: bold;
+            background: rgba(138, 43, 226, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-shadow: 0 0 4px rgba(138, 43, 226, 0.3);
+            display: inline-block;
+        }
+    `;
+    document.head.appendChild(resultsStyle);
+
     initNetworkGraph();
     initTypewriterEffect();
     initSmoothScroll();
@@ -330,7 +358,10 @@ function initFormSubmit() {
             
             // Make API call to backend with timeout
             let controller = new AbortController();
-            let timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+            let timeoutId = setTimeout(() => controller.abort(), 120000); // Increased to 120 second timeout to match server
+            
+            // Record start time for calculation
+            const calculationStartTime = Date.now();
             
             const response = await fetch('/api/find_path', {
                 method: 'POST',
@@ -346,6 +377,9 @@ function initFormSubmit() {
             });
             
             clearTimeout(timeoutId);
+            
+            // Calculate elapsed time
+            const calculationElapsedTime = ((Date.now() - calculationStartTime) / 1000).toFixed(2);
 
             const data = await response.json();
             
@@ -415,6 +449,10 @@ function initFormSubmit() {
                         <div class="path-row">
                             <div class="path-label">Estimated Time:</div>
                             <div class="path-value path-time">${time}</div>
+                        </div>
+                        <div class="path-row">
+                            <div class="path-label">Calculation Time:</div>
+                            <div class="path-value calculation-time">${calculationElapsedTime} seconds</div>
                         </div>
                     </div>
                     <div class="path-visualization">
@@ -846,36 +884,51 @@ window.addEventListener('load', function() {
 
 // ======== AUTOCOMPLETE ========
 function initAutocomplete() {
-    // List of Indian states for autocomplete
-    const states = [
-        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-        'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
-        'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
-        'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
-        'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-        'Delhi', 'Jammu and Kashmir', 'Ladakh'
-    ];
+    // Fetch states from the API
+    let states = [];
+    let citiesByState = {};
 
-    // Cities organized by state
-    const citiesByState = {
-        'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra', 'Prayagraj', 'Varanasi', 'Ghaziabad', 'Noida'],
-        'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur', 'Ujjain', 'Rewa'],
-        'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Thane', 'Nashik', 'Aurangabad'],
-        'Delhi': ['New Delhi', 'Delhi'],
-        'Haryana': ['Gurgaon', 'Faridabad', 'Chandigarh'],
-        'Karnataka': ['Bangalore', 'Mysore', 'Hubli'],
-        'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai'],
-        'Telangana': ['Hyderabad', 'Warangal'],
-        'West Bengal': ['Kolkata', 'Howrah'],
-        'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara'],
-        'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur'],
-        'Kerala': ['Kochi', 'Thiruvananthapuram', 'Kozhikode'],
-        'Bihar': ['Patna', 'Gaya'],
-        'Odisha': ['Bhubaneswar', 'Cuttack', 'Puri']
-    };
-
+    // Fetch states and setup the form
+    fetch('/api/states')
+        .then(response => response.json())
+        .then(data => {
+            states = data;
+            
+            // Setup state dropdowns
+            const startStateSelect = document.getElementById('startState');
+            const endStateSelect = document.getElementById('endState');
+            const startCitySelect = document.getElementById('startCity');
+            const endCitySelect = document.getElementById('endCity');
+            
+            // Populate state dropdowns
+            populateStateDropdown(startStateSelect);
+            populateStateDropdown(endStateSelect);
+            
+            // Add change event listeners for state dropdowns
+            startStateSelect.addEventListener('change', function() {
+                if (this.value) {
+                    fetchCities(this.value, startCitySelect);
+                } else {
+                    clearCityDropdown(startCitySelect);
+                }
+            });
+            
+            endStateSelect.addEventListener('change', function() {
+                if (this.value) {
+                    fetchCities(this.value, endCitySelect);
+                } else {
+                    clearCityDropdown(endCitySelect);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching states:', error);
+            alert('Failed to load state data. Please refresh the page or try again later.');
+        });
+    
     // Populate state dropdowns
     function populateStateDropdown(selectElement) {
+        selectElement.innerHTML = '<option value="">Select state</option>';
         states.forEach(state => {
             const option = document.createElement('option');
             option.value = state;
@@ -883,15 +936,43 @@ function initAutocomplete() {
             selectElement.appendChild(option);
         });
     }
+    
+    // Clear city dropdown
+    function clearCityDropdown(citySelect) {
+        citySelect.innerHTML = '<option value="">Select state first</option>';
+        citySelect.disabled = true;
+    }
+    
+    // Fetch cities for a state
+    function fetchCities(state, citySelect) {
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">Loading cities...</option>';
+        
+        // Check if we've already fetched this state's cities
+        if (citiesByState[state]) {
+            populateCityDropdown(citySelect, state);
+            return;
+        }
+        
+        // Fetch cities from API
+        fetch(`/api/cities/${encodeURIComponent(state)}`)
+            .then(response => response.json())
+            .then(cities => {
+                citiesByState[state] = cities;
+                populateCityDropdown(citySelect, state);
+            })
+            .catch(error => {
+                console.error(`Error fetching cities for ${state}:`, error);
+                citySelect.innerHTML = '<option value="">Error loading cities</option>';
+            });
+    }
 
     // Populate city dropdown based on selected state
     function populateCityDropdown(citySelect, state) {
-        // Clear existing options except the first one
-        while (citySelect.options.length > 1) {
-            citySelect.remove(1);
-        }
-
-        if (state && citiesByState[state]) {
+        // Clear existing options
+        citySelect.innerHTML = '<option value="">Select city</option>';
+        
+        if (state && citiesByState[state] && citiesByState[state].length > 0) {
             citySelect.disabled = false;
             citiesByState[state].forEach(city => {
                 const option = document.createElement('option');
@@ -900,28 +981,10 @@ function initAutocomplete() {
                 citySelect.appendChild(option);
             });
         } else {
+            citySelect.innerHTML = '<option value="">No cities available</option>';
             citySelect.disabled = true;
         }
     }
-
-    // Setup state dropdowns
-    const startStateSelect = document.getElementById('startState');
-    const endStateSelect = document.getElementById('endState');
-    const startCitySelect = document.getElementById('startCity');
-    const endCitySelect = document.getElementById('endCity');
-
-    // Populate state dropdowns
-    populateStateDropdown(startStateSelect);
-    populateStateDropdown(endStateSelect);
-
-    // Add change event listeners for state dropdowns
-    startStateSelect.addEventListener('change', function() {
-        populateCityDropdown(startCitySelect, this.value);
-    });
-
-    endStateSelect.addEventListener('change', function() {
-        populateCityDropdown(endCitySelect, this.value);
-    });
 
     // Add custom styling for dropdowns
     const style = document.createElement('style');
@@ -1065,6 +1128,11 @@ function showLoading(message = 'Processing...') {
         loadingOverlay.innerHTML = `
             <div class="loading-spinner"></div>
             <div class="loading-message"></div>
+            <div class="calculation-timer">Calculating: <span id="timerValue">0</span> seconds</div>
+            <div class="algorithm-suggestion" style="display: none;">
+                <p>If Dijkstra is taking too long, try A* algorithm for better performance</p>
+                <button id="switchToAStarBtn" class="switch-algorithm-btn">Use A* Algorithm</button>
+            </div>
         `;
         document.body.appendChild(loadingOverlay);
         
@@ -1098,6 +1166,46 @@ function showLoading(message = 'Processing...') {
                 color: white;
                 font-size: 16px;
                 font-family: 'Poppins', sans-serif;
+                text-align: center;
+            }
+            .calculation-timer {
+                margin-top: 15px;
+                color: #8a2be2;
+                font-size: 14px;
+                font-family: 'Poppins', sans-serif;
+                font-weight: bold;
+                text-align: center;
+                background: rgba(255, 255, 255, 0.15);
+                padding: 5px 15px;
+                border-radius: 20px;
+                box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+            }
+            .algorithm-suggestion {
+                margin-top: 15px;
+                text-align: center;
+            }
+            .algorithm-suggestion p {
+                color: #ff9800;
+                font-size: 14px;
+                font-family: 'Poppins', sans-serif;
+                margin-bottom: 10px;
+            }
+            .switch-algorithm-btn {
+                background: #8a2be2;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-family: 'Poppins', sans-serif;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+            }
+            .switch-algorithm-btn:hover {
+                background: #7b27c7;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(138, 43, 226, 0.7);
             }
             @keyframes spin {
                 to { transform: rotate(360deg); }
@@ -1106,11 +1214,83 @@ function showLoading(message = 'Processing...') {
         document.head.appendChild(style);
     }
     
+    // Store the current algorithm
+    const currentAlgorithm = document.getElementById('selectedAlgorithm')?.value || 'dijkstra';
+    
     // Set message
     loadingOverlay.querySelector('.loading-message').textContent = message;
     
+    // Reset timer
+    const timerValue = loadingOverlay.querySelector('#timerValue');
+    if (timerValue) {
+        timerValue.textContent = '0';
+    }
+    
+    // Show or hide algorithm suggestion based on current algorithm
+    const algorithmSuggestion = loadingOverlay.querySelector('.algorithm-suggestion');
+    if (algorithmSuggestion) {
+        if (currentAlgorithm === 'dijkstra') {
+            algorithmSuggestion.style.display = 'block';
+        } else {
+            algorithmSuggestion.style.display = 'none';
+        }
+    }
+    
+    // Add event listener to the switch algorithm button
+    const switchButton = loadingOverlay.querySelector('#switchToAStarBtn');
+    if (switchButton) {
+        // Remove any existing event listeners
+        switchButton.replaceWith(switchButton.cloneNode(true));
+        
+        // Add new event listener
+        loadingOverlay.querySelector('#switchToAStarBtn').addEventListener('click', function() {
+            // Hide the overlay
+            hideLoading();
+            
+            // Set algorithm to A*
+            const algorithmInput = document.getElementById('selectedAlgorithm');
+            if (algorithmInput) {
+                algorithmInput.value = 'a_star';
+            }
+            
+            // Update toggle display
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            toggleOptions.forEach(opt => opt.classList.remove('active'));
+            const aStarOption = document.querySelector('.toggle-option[data-algorithm="astar"]');
+            if (aStarOption) {
+                aStarOption.classList.add('active');
+            }
+            
+            // Move slider
+            const slider = document.querySelector('.toggle-slider');
+            if (slider) {
+                slider.style.transform = 'translateX(100%)';
+            }
+            
+            // Submit the form again
+            const form = document.getElementById('pathFinderForm');
+            if (form) {
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+    
     // Show the overlay
     loadingOverlay.style.display = 'flex';
+    
+    // Start the timer
+    let seconds = 0;
+    window.pathCalculationTimer = setInterval(() => {
+        seconds++;
+        if (timerValue) {
+            timerValue.textContent = seconds;
+        }
+        
+        // Show algorithm suggestion after 10 seconds for Dijkstra algorithm
+        if (seconds === 10 && currentAlgorithm === 'dijkstra' && algorithmSuggestion) {
+            algorithmSuggestion.style.display = 'block';
+        }
+    }, 1000);
 }
 
 // Hide loading state
@@ -1118,6 +1298,12 @@ function hideLoading() {
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
         loadingOverlay.style.display = 'none';
+        
+        // Clear the timer interval
+        if (window.pathCalculationTimer) {
+            clearInterval(window.pathCalculationTimer);
+            window.pathCalculationTimer = null;
+        }
     }
 }
 

@@ -25,6 +25,7 @@ function createStars(count) {
         star.style.top = `${Math.random() * 100}%`;
         star.style.left = `${Math.random() * 100}%`;
         star.style.animationDelay = `${Math.random() * 5}s`;
-        starsContainer.appendChild(star);
+        starsContainer.
+        pendChild(star);
     }
 } 

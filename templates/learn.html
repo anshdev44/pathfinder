@@ -6,6 +6,387 @@
     <title>Learn | Shortest Path Algorithms</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/learn.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Additional creative styles */
+        .hero-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+        
+        .node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at center, #e94560, #b91d43);
+            border-radius: 50%;
+            box-shadow: 0 0 15px #e94560;
+            z-index: -1;
+        }
+        
+        .path {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, #e94560, #4a00e0);
+            z-index: -2;
+        }
+        
+        .floating-card {
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .floating-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .algorithm-card {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .algo-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #e94560;
+            text-align: center;
+        }
+        
+        .algo-animation {
+            height: 180px;
+            position: relative;
+            margin: 20px 0;
+            border-radius: 8px;
+            background: rgba(10, 10, 20, 0.5);
+            overflow: hidden;
+        }
+        
+        .grid-point {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+        
+        .visited {
+            background: rgba(74, 0, 224, 0.7);
+            box-shadow: 0 0 10px rgba(74, 0, 224, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .path-point {
+            background: #e94560;
+            box-shadow: 0 0 10px #e94560;
+            z-index: 1;
+        }
+        
+        .start-point {
+            background: #4CAF50;
+            box-shadow: 0 0 10px #4CAF50;
+            transform: scale(1.5);
+            z-index: 2;
+        }
+        
+        .end-point {
+            background: #FF9800;
+            box-shadow: 0 0 10px #FF9800;
+            transform: scale(1.5);
+            z-index: 2;
+        }
+        
+        .fact-box {
+            background: linear-gradient(90deg, #3a1c71, #d76d77, #ffaf7b);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fact-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="30" y="30" font-family="Arial" font-size="24" fill="rgba(255,255,255,0.1)" transform="rotate(45 50 50)">FACT</text></svg>');
+            background-repeat: repeat;
+            opacity: 0.3;
+        }
+        
+        .quote {
+            font-style: italic;
+            padding: 20px;
+            position: relative;
+            margin: 30px 0;
+            background: rgba(26, 26, 46, 0.5);
+            border-left: 4px solid #e94560;
+        }
+        
+        .quote::before {
+            content: """;
+            font-size: 4rem;
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            opacity: 0.2;
+            color: #e94560;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+        }
+        
+        .tabs-container {
+            margin: 30px 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s, color 0.3s;
+        }
+        
+        .tab-button.active {
+            opacity: 1;
+            color: #e94560;
+            position: relative;
+        }
+        
+        .tab-button.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e94560;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Visualizer Section Styles */
+        .visualizer-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .visualizer-instructions {
+            background: rgba(10, 10, 20, 0.5);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .visualizer-instructions h4 {
+            color: #e94560;
+            margin-top: 0;
+        }
+        
+        .visualizer-instructions ol {
+            padding-left: 1.5rem;
+        }
+        
+        .visualizer-instructions li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .visualizer-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 65%; /* Aspect ratio */
+            margin: 2.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .visualizer-frame-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .visualizer-frame-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 0 40px rgba(233, 69, 96, 0.3);
+        }
+        
+        .visualizer-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #0a0a14;
+        }
+        
+        .frame-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeOut 1s forwards 2s;
+            pointer-events: none;
+        }
+        
+        .frame-loader {
+            text-align: center;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(233, 69, 96, 0.3);
+            border-top: 5px solid #e94560;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        .visualizer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .visualizer-cta {
+            text-align: center;
+            margin: 2.5rem 0;
+        }
+        
+        .visualizer-link {
+            background: linear-gradient(90deg, #e94560, #b91d43);
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .visualizer-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .visualizer-container {
+                padding-bottom: 80%;
+            }
+            
+            .visualizer-footer {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            
+            .visualizer-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Highlighted text styling */
+        .highlight-text {
+            font-weight: bold;
+            color: #ff3d61;
+            text-shadow: 0 0 10px rgba(255, 61, 97, 0.7);
+            animation: textGlow 1.5s infinite alternate;
+            padding: 0 4px;
+        }
+        
+        @keyframes textGlow {
+            from { text-shadow: 0 0 5px rgba(255, 61, 97, 0.7); }
+            to { text-shadow: 0 0 15px rgba(255, 61, 97, 0.9), 0 0 20px rgba(255, 61, 97, 0.4); }
+        }
+    </style>
 </head>
 <body>
     <!-- Background Elements -->
@@ -25,117 +406,241 @@
         </div>
     </nav>
 
-    <!-- Introduction Section -->
-    <section id="introduction" class="section">
-        <div class="section-container">
-            <h2 class="section-title">Introduction to Shortest Path Algorithms</h2>
-            <p>Shortest path algorithms are essential in various fields, from network routing to urban planning. They help find the most efficient route between two points, saving time and resources.</p>
-        </div>
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+        <h1 class="hero-title">The Art of Finding Paths</h1>
+        <p class="hero-subtitle">Discover the elegant mathematics and computational thinking behind pathfinding algorithms that power our digital world</p>
+        
+        <!-- Animated nodes and paths -->
+        <div class="node" style="top: 15%; left: 20%;"></div>
+        <div class="node" style="top: 25%; left: 40%;"></div>
+        <div class="node" style="top: 60%; left: 65%;"></div>
+        <div class="node" style="top: 30%; left: 75%;"></div>
+        <div class="node" style="top: 70%; left: 30%;"></div>
+        
+        <div class="path" style="top: 18%; left: 22%; width: 21%; transform: rotate(20deg);"></div>
+        <div class="path" style="top: 33%; left: 41%; width: 28%; transform: rotate(50deg);"></div>
+        <div class="path" style="top: 45%; left: 65%; width: 13%; transform: rotate(-60deg);"></div>
+        <div class="path" style="top: 67%; left: 32%; width: 35%; transform: rotate(-20deg);"></div>
     </section>
 
-    <!-- Dijkstra's Algorithm Section -->
-    <section id="dijkstra" class="section">
-        <div class="section-container">
-            <h2 class="section-title">Dijkstra's Algorithm</h2>
-            <p>Dijkstra's algorithm is a popular method for finding the shortest path in a graph with non-negative edge weights. It explores all possible paths to ensure the optimal solution.</p>
-            <div class="algorithm-details">
-                <h3>Step-by-Step Explanation</h3>
-                <ol>
-                    <li>Initialize distances from the source to all vertices as infinite, except the source itself, which is set to zero.</li>
-                    <li>Use a priority queue to explore the nearest unvisited vertex.</li>
-                    <li>Update the distance to each neighboring vertex if a shorter path is found.</li>
-                    <li>Repeat until all vertices are visited.</li>
-                </ol>
-                <h3>Time Complexity</h3>
-                <p>O(V^2) for a simple implementation, or O(E + V log V) with a priority queue.</p>
-                <h3>Use Cases</h3>
-                <ul>
-                    <li>Network routing</li>
-                    <li>Map services</li>
-                    <li>Robotics</li>
-                </ul>
+    <!-- Introduction Section -->
+    <section id="introduction" class="section">
+        <div class="floating-card">
+            <h2 class="section-title">Introduction to Shortest Path Algorithms</h2>
+            <p>Shortest path algorithms are computational procedures that calculate the most efficient route between two points in a network or graph. These algorithms are the invisible force powering many technologies we use daily.</p>
+            
+            <div class="quote">
+                <p>The shortest distance between two points is not always a straight line—especially in the complex networks of our interconnected world.</p>
+            </div>
+            
+            <p>Whether it's finding the fastest route on a map, routing internet traffic, or guiding robots through complex environments, shortest path algorithms form the backbone of efficient navigation systems.</p>
+            
+            <div class="fact-box">
+                <h3><i class="fas fa-lightbulb"></i> Did You Know?</h3>
+                <p>If you've ever used a GPS navigation system, you've benefited from shortest path algorithms. These mathematical techniques save billions of hours in travel time annually worldwide!</p>
             </div>
         </div>
     </section>
 
-    <!-- A* Algorithm Section -->
-    <section id="astar" class="section">
-        <div class="section-container">
-            <h2 class="section-title">A* Algorithm</h2>
-            <p>The A* algorithm improves upon Dijkstra's by using heuristics to guide the search, making it more efficient in many cases.</p>
-            <div class="algorithm-details">
-                <h3>Heuristics and Performance</h3>
-                <p>A* uses a heuristic function to estimate the cost to reach the goal, allowing it to prioritize paths that seem more promising.</p>
-                <h3>Comparison with Dijkstra's</h3>
-                <p>While Dijkstra's explores all paths, A* focuses on the most promising ones, often resulting in faster solutions.</p>
+    <!-- Algorithm Exploration Section -->
+    <section id="algorithms" class="section">
+        <h2 class="section-title">Explore the Algorithms</h2>
+        
+        <div class="tabs-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="dijkstra">Dijkstra's Algorithm</button>
+                <button class="tab-button" data-tab="astar">A* Algorithm</button>
+            </div>
+            
+            <!-- Dijkstra Tab -->
+            <div class="tab-content active" id="dijkstra-tab">
+                <div class="floating-card algorithm-card">
+                    <div class="algo-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3>Dijkstra's Algorithm</h3>
+                    <p>Named after Dutch computer scientist Edsger W. Dijkstra, this algorithm guarantees the shortest path in graphs with non-negative edge weights by methodically exploring all possible routes outward from the starting point.</p>
+                    
+                    <div class="algo-animation" id="dijkstra-animation">
+                        <!-- Animation elements will be created by JavaScript -->
+                    </div>
+                    
+                    <div class="algorithm-details">
+                        <h3><i class="fas fa-code"></i> How It Works</h3>
+                        <ol>
+                            <li>Initialize distances from source to all vertices as infinite and the source itself as zero.</li>
+                            <li>Create a priority queue to store vertices that need to be processed.</li>
+                            <li>Extract the vertex with the minimum distance value from the priority queue.</li>
+                            <li>For each adjacent vertex, if the sum of the distance to the current vertex and the weight of the edge to the adjacent vertex is less than the known distance to the adjacent vertex, update the distance.</li>
+                            <li>Repeat until all vertices have been processed.</li>
+                        </ol>
+                        
+                        <div class="fact-box">
+                            <h3><i class="fas fa-history"></i> Historical Note</h3>
+                            <p>Dijkstra conceived his algorithm in just 20 minutes while enjoying a cup of coffee at a café in 1956! He didn't publish it until 1959, and it's now one of the most widely used algorithms in computer science.</p>
+                        </div>
+                        
+                        <h3><i class="fas fa-chart-line"></i> Complexity</h3>
+                        <p>Time Complexity: O(E + V log V) with a binary heap priority queue, where E is the number of edges and V is the number of vertices.</p>
+                        <p>Space Complexity: O(V) to store the distances, visited status, and priority queue.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- A* Tab -->
+            <div class="tab-content" id="astar-tab">
+                <div class="floating-card algorithm-card">
+                    <div class="algo-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>A* Algorithm</h3>
+                    <p>A* (pronounced "A-star") is an informed search algorithm that uses heuristics to guide its path exploration. It's like Dijkstra's algorithm with a compass pointing toward the destination.</p>
+                    
+                    <div class="algo-animation" id="astar-animation">
+                        <!-- Animation elements will be created by JavaScript -->
+                    </div>
+                    
+                    <div class="algorithm-details">
+                        <h3><i class="fas fa-lightbulb"></i> The A* Innovation</h3>
+                        <p>A* uses a best-first search approach and evaluates nodes by combining:</p>
+                        <ul>
+                            <li><strong>g(n):</strong> The exact cost from the start node to the current node</li>
+                            <li><strong>h(n):</strong> A heuristic estimate of the cost from the current node to the goal</li>
+                        </ul>
+                        <p>The total function f(n) = g(n) + h(n) represents the estimated cost of the cheapest solution through node n.</p>
+                        
+                        <div class="quote">
+                            <p>A* doesn't waste time exploring in all directions—it uses its heuristic knowledge to focus on the most promising paths toward the goal.</p>
+                        </div>
+                        
+                        <h3><i class="fas fa-gamepad"></i> Real-World Applications</h3>
+                        <p>A* is widely used in:</p>
+                        <ul>
+                            <li>Video game pathfinding for characters navigating complex environments</li>
+                            <li>Robotics for planning efficient motion paths</li>
+                            <li>GPS systems for finding routes that balance distance and other factors</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Comparison Table Section -->
     <section id="comparison" class="section">
-        <div class="section-container">
-            <h2 class="section-title">Comparison Table</h2>
+        <div class="floating-card">
+            <h2 class="section-title">Algorithm Showdown</h2>
+            <p>How do these powerful algorithms compare? Let's break down their strengths and weaknesses:</p>
+            
             <table class="comparison-table">
                 <thead>
                     <tr>
-                        <th>Algorithm</th>
-                        <th>Pros</th>
-                        <th>Cons</th>
+                        <th>Aspect</th>
+                        <th>Dijkstra's Algorithm</th>
+                        <th>A* Algorithm</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Dijkstra's</td>
-                        <td>Guaranteed optimal solution, works on all graphs with non-negative weights</td>
-                        <td>Can be slow for large graphs</td>
+                        <td>Search Strategy</td>
+                        <td>Uniform cost search (breadth-first)</td>
+                        <td>Informed search (best-first)</td>
                     </tr>
                     <tr>
-                        <td>A*</td>
-                        <td>Faster with a good heuristic, focuses on promising paths</td>
-                        <td>Requires a heuristic, may not be optimal without a good one</td>
+                        <td>Optimality</td>
+                        <td>Always finds the shortest path</td>
+                        <td>Only optimal with admissible heuristics</td>
+                    </tr>
+                    <tr>
+                        <td>Efficiency</td>
+                        <td>Explores in all directions</td>
+                        <td>Focuses search toward the goal</td>
+                    </tr>
+                    <tr>
+                        <td>Memory Usage</td>
+                        <td>Can be high for large graphs</td>
+                        <td>Often more memory-efficient</td>
+                    </tr>
+                    <tr>
+                        <td>Best Use Case</td>
+                        <td>When all paths need to be explored</td>
+                        <td>When additional information about the goal is available</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </section>
-
-    <!-- Interactive Examples Section -->
-    <section id="examples" class="section">
-        <div class="section-container">
-            <h2 class="section-title">Interactive Examples</h2>
-            <div class="code-snippets">
-                <h3>C++ Example</h3>
-                <pre><code class="language-cpp">// C++ code for Dijkstra's algorithm
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-#include &lt;queue&gt;
-using namespace std;
-
-void dijkstra(vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; &amp;graph, int src) {
-    // Implementation here
-}</code></pre>
-                <h3>JavaScript Example</h3>
-                <pre><code class="language-javascript">// JavaScript code for A* algorithm
-function aStar(start, goal) {
-    // Implementation here
-}</code></pre>
+    
+    <!-- Interactive Visualizer Section -->
+    <section id="visualizer" class="section">
+        <h2 class="section-title">Experience Path-finding in Action</h2>
+        
+        <div class="floating-card">
+            <div class="visualizer-intro">
+                <div class="algo-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h3>Interactive Visualizer</h3>
+                <p>See the algorithms you've learned about in real-time with our interactive grid visualizer. Create walls, add weights, and watch how different algorithms navigate through obstacles to find the optimal path.</p>
+                
+                <div class="quote">
+                    <p>The best way to understand an algorithm is to see it in action, manipulate its environment, and observe how it responds.</p>
+                </div>
             </div>
-            <div class="visual-explanations">
-                <p>Visual explanations will be added here to demonstrate how each algorithm works step-by-step.</p>
+            
+            <div class="visualizer-instructions">
+                <h4><i class="fas fa-info-circle"></i> How to Use the Visualizer</h4>
+                <ol>
+                    <li><strong>Select an Algorithm</strong> - Choose between Dijkstra's, A*, BFS, or DFS</li>
+                    <li><strong>Place Start & End Points</strong> - Set your origin and destination</li>
+                    <li><strong>Create Obstacles</strong> - Add walls and weighted areas to challenge the algorithm</li>
+                    <li><strong>Run the Visualization</strong> - Watch how the algorithm explores the grid</li>
+                    <li><strong>Analyze the Results</strong> - Compare how different algorithms perform</li>
+                </ol>
+            </div>
+            
+            <div class="fact-box">
+                <h3><i class="fas fa-lightbulb"></i> Visualization Insights</h3>
+                <p>Notice how Dijkstra's algorithm explores in all directions equally, while A* makes a more direct path toward the destination? This visual difference perfectly illustrates their theoretical differences!</p>
+            </div>
+            
+            <div class="visualizer-cta">
+                <a href="https://thepathviz.netlify.app/visualizer" target="_blank" class="visualizer-link">
+                    <i class="fas fa-external-link-alt"></i> Launch Interactive Visualizer
+                </a>
+            </div>
+            
+            <div class="visualizer-footer">
+                <p>This powerful interactive visualizer was <span class="highlight-text">made by my friends</span> to help you better understand pathfinding concepts. Experiment with different configurations to deepen your understanding!</p>
             </div>
         </div>
     </section>
 
     <!-- Additional Resources Section -->
     <section id="resources" class="section">
-        <div class="section-container">
-            <h2 class="section-title">Additional Resources</h2>
-            <ul>
-                <li><a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm" target="_blank">Dijkstra's Algorithm on Wikipedia</a></li>
-                <li><a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="_blank">A* Algorithm on Wikipedia</a></li>
-                <li><a href="https://www.geeksforgeeks.org/" target="_blank">GeeksforGeeks</a></li>
-            </ul>
+        <div class="floating-card">
+            <h2 class="section-title">Further Exploration</h2>
+            <p>Ready to dive deeper into the fascinating world of pathfinding algorithms? Check out these resources:</p>
+            
+            <div class="resources-grid">
+                <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm" target="_blank" class="resource-card">
+                    <i class="fab fa-wikipedia-w"></i>
+                    <h3>Dijkstra's Algorithm</h3>
+                    <p>Comprehensive explanation on Wikipedia</p>
+                </a>
+                
+                <a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="_blank" class="resource-card">
+                    <i class="fab fa-wikipedia-w"></i>
+                    <h3>A* Algorithm</h3>
+                    <p>Detailed breakdown with examples</p>
+                </a>
+            </div>
+            
+            <div class="fact-box" style="margin-top: 30px;">
+                <h3><i class="fas fa-graduation-cap"></i> Next Steps</h3>
+                <p>Now that you understand the theory, head over to our <a href="/pathfinder" style="color: white; text-decoration: underline;">PathFinder</a> tool to see these algorithms in action with real geographic data!</p>
+            </div>
         </div>
     </section>
 
@@ -162,5 +667,228 @@ function aStar(start, goal) {
 
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/learn.js') }}"></script>
+    <script>
+        // Create random stars in the background
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const starsCount = 100;
+            
+            for (let i = 0; i < starsCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random size classes
+                if (Math.random() > 0.8) {
+                    star.classList.add('medium');
+                } else if (Math.random() > 0.9) {
+                    star.classList.add('large');
+                }
+                
+                // Random position
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                
+                // Random animation delay
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // Tab switching functionality
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        }
+        
+        // Create algorithm animation
+        function createPathfindingAnimation(containerId, algorithm) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Grid dimensions
+            const cols = 15;
+            const rows = 7;
+            
+            // Create grid points
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const point = document.createElement('div');
+                    point.classList.add('grid-point');
+                    point.style.top = `${(i * 100) / (rows - 1)}%`;
+                    point.style.left = `${(j * 100) / (cols - 1)}%`;
+                    
+                    // Add data attributes for position
+                    point.dataset.row = i;
+                    point.dataset.col = j;
+                    
+                    container.appendChild(point);
+                }
+            }
+            
+            // Set start and end points
+            const startPoint = container.querySelector('[data-row="3"][data-col="1"]');
+            const endPoint = container.querySelector('[data-row="3"][data-col="13"]');
+            
+            if (startPoint) startPoint.classList.add('start-point');
+            if (endPoint) endPoint.classList.add('end-point');
+            
+            // Animate algorithm (simplified for visualization)
+            let visited = [];
+            let pathPoints = [];
+            
+            if (algorithm === 'dijkstra') {
+                // Simulate Dijkstra's exploration pattern
+                visited = [
+                    [3, 2], [2, 2], [4, 2], [3, 3],
+                    [2, 3], [4, 3], [1, 2], [5, 2],
+                    [2, 4], [4, 4], [3, 4], [1, 3],
+                    [5, 3], [3, 5], [2, 5], [4, 5],
+                    [1, 4], [5, 4], [3, 6], [2, 6],
+                    [4, 6], [3, 7], [2, 7], [4, 7],
+                    [3, 8], [2, 8], [4, 8], [3, 9],
+                    [2, 9], [4, 9], [3, 10], [2, 10],
+                    [4, 10], [3, 11], [2, 11], [4, 11],
+                    [3, 12], [2, 12], [4, 12], [3, 13]
+                ];
+                
+                // Final path
+                pathPoints = [
+                    [3, 2], [3, 3], [3, 4], [3, 5], [3, 6],
+                    [3, 7], [3, 8], [3, 9], [3, 10], [3, 11],
+                    [3, 12], [3, 13]
+                ];
+            } else if (algorithm === 'astar') {
+                // Simulate A* exploration pattern (more directed toward goal)
+                visited = [
+                    [3, 2], [3, 3], [3, 4], [4, 4], [2, 4],
+                    [3, 5], [4, 5], [2, 5], [3, 6], [4, 6],
+                    [2, 6], [3, 7], [4, 7], [2, 7], [3, 8],
+                    [3, 9], [3, 10], [3, 11], [3, 12], [3, 13]
+                ];
+                
+                // Final path
+                pathPoints = [
+                    [3, 2], [3, 3], [3, 4], [3, 5], [3, 6],
+                    [3, 7], [3, 8], [3, 9], [3, 10], [3, 11],
+                    [3, 12], [3, 13]
+                ];
+            }
+            
+            // Animate visited nodes
+            visited.forEach((pos, index) => {
+                setTimeout(() => {
+                    const point = container.querySelector(`[data-row="${pos[0]}"][data-col="${pos[1]}"]`);
+                    if (point) point.classList.add('visited');
+                }, index * 100);
+            });
+            
+            // Animate final path after visited animation
+            setTimeout(() => {
+                pathPoints.forEach((pos, index) => {
+                    setTimeout(() => {
+                        const point = container.querySelector(`[data-row="${pos[0]}"][data-col="${pos[1]}"]`);
+                        if (point) point.classList.add('path-point');
+                    }, index * 100);
+                });
+            }, visited.length * 100 + 500);
+        }
+        
+        // Handle iframe loading
+        function initVisualizer() {
+            const visualizerFrame = document.querySelector('.visualizer-frame');
+            const frameOverlay = document.querySelector('.frame-overlay');
+            
+            if (!visualizerFrame || !frameOverlay) return;
+            
+            // Remove overlay when iframe loads
+            visualizerFrame.addEventListener('load', () => {
+                frameOverlay.style.animation = 'fadeOut 0.5s forwards';
+                
+                // Add scroll into view when clicking visualizer link
+                const visualizerLink = document.querySelector('.visualizer-link');
+                if (visualizerLink) {
+                    visualizerLink.addEventListener('click', (e) => {
+                        // Allow the link to open in new tab
+                        // Just add analytics tracking here if needed
+                        console.log('Visualizer opened in full screen');
+                    });
+                }
+            });
+            
+            // Fallback for iframe loading issues
+            setTimeout(() => {
+                frameOverlay.style.animation = 'fadeOut 0.5s forwards';
+            }, 5000);
+        }
+        
+        // Initialize visualizer when scrolled into view
+        function handleVisualizerScroll() {
+            const visualizerSection = document.getElementById('visualizer');
+            if (!visualizerSection) return;
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        initVisualizer();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+            
+            observer.observe(visualizerSection);
+        }
+        
+        // Initialize visualizer scroll handling after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            initTabs();
+            createPathfindingAnimation('dijkstra-animation', 'dijkstra');
+            handleVisualizerScroll();
+            
+            // Create A* animation when tab is clicked
+            document.querySelector('[data-tab="astar"]').addEventListener('click', function() {
+                setTimeout(() => {
+                    createPathfindingAnimation('astar-animation', 'astar');
+                }, 300);
+            });
+            
+            // Custom cursor effect
+            const cursor = document.querySelector('.custom-cursor');
+            const links = document.querySelectorAll('a, button, .tab-button');
+            
+            document.addEventListener('mousemove', e => {
+                cursor.style.left = `${e.clientX}px`;
+                cursor.style.top = `${e.clientY}px`;
+            });
+            
+            links.forEach(link => {
+                link.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                });
+                link.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                });
+            });
+        });
+    </script>
 </body>
 </html> 

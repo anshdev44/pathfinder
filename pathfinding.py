@@ -209,7 +209,7 @@ class PathFinder:
             print(f"No driving route found, using straight-line: {node1.name} <-> {node2.name}")
             self.distances[pair_key] = haversine_dist
             return haversine_dist
-            
+                
         except Exception as e:
             print(f"Error fetching driving distance: {e}")
             self.distances[pair_key] = haversine_dist
@@ -226,6 +226,8 @@ class PathFinder:
         Returns:
             Tuple of (path_node_ids, total_distance_meters, estimated_time_minutes)
         """
+        print(f"find_path called with algorithm: '{algorithm}'")
+        
         if start_id not in self.nodes:
             raise ValueError(f"Start node '{start_id}' not found")
         if end_id not in self.nodes:
@@ -237,8 +239,10 @@ class PathFinder:
             
         # Select algorithm
         if algorithm == 'a_star':
+            print("Using A* algorithm")
             return self._a_star_search(start_id, end_id)
         else:  # Default to Dijkstra
+            print("Using Dijkstra algorithm")
             return self._dijkstra_search(start_id, end_id)
 
     def _dijkstra_search(self, start_id: str, end_id: str) -> Tuple[List[str], float, float]:
@@ -256,7 +260,7 @@ class PathFinder:
         
         # Set start node cost to 0
         start_node.g_cost = 0
-        
+
         # Priority queue for nodes to visit
         open_set = []
         heapq.heappush(open_set, PriorityNode(priority=0, node_id=start_id))
@@ -302,15 +306,15 @@ class PathFinder:
             
             # Skip if already processed
             if current_id in closed_set:
-                continue
-                
+                 continue
+
             current_node = self.nodes[current_id]
-            
+
             # Reached end node
             if current_id == end_id:
                 print(f"Path found! Processed {nodes_processed} nodes in {time.time() - start_time:.2f} seconds")
                 break
-                
+
             # Mark as visited
             closed_set.add(current_id)
             
@@ -318,7 +322,7 @@ class PathFinder:
             for neighbor_id, neighbor_node in candidate_nodes.items():
                 if neighbor_id in closed_set:
                     continue
-                    
+
                 # Get distance between current and neighbor
                 distance = self.get_driving_distance(current_node, neighbor_node)
                 if distance is None:
@@ -395,7 +399,7 @@ class PathFinder:
             if node_id == start_id or node_id == end_id:
                 candidate_nodes[node_id] = node
                 continue
-                
+
             # Check if this node is within reasonable distance from either start or end
             dist_to_start = self._haversine_distance(start_node, node)
             dist_to_end = self._haversine_distance(end_node, node)
@@ -420,8 +424,8 @@ class PathFinder:
             
             # Skip if already processed
             if current_id in closed_set:
-                continue
-                
+                     continue
+
             current_node = self.nodes[current_id]
             
             # Reached end node
@@ -475,11 +479,11 @@ class PathFinder:
         
         print(f"Path found with {len(path)} nodes, {total_distance/1000:.1f}km, {estimated_time_mins:.1f} minutes")
         return path, total_distance, estimated_time_mins
-        
+
     def get_all_states(self) -> List[str]:
         """Return a list of all available states."""
         return self.states
-        
+
     def get_cities_by_state(self, state_name: str) -> List[str]:
         """Return a list of cities for a given state."""
         if state_name not in self.cities_by_state:

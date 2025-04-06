@@ -1611,47 +1611,47 @@ button#backHome:hover {
 
 .algorithm-toggle {
     display: flex;
-    justify-content: center;
-    background-color: rgba(10, 10, 20, 0.7);
-    width: fit-content;
-    border-radius: 50px;
+    align-items: center;
+    background-color: rgba(26, 26, 46, 0.5);
+    border-radius: 25px;
     padding: 5px;
-    margin: 0 auto 2.5rem;
     position: relative;
-    z-index: 1;
+    width: fit-content;
+    margin: 0 auto 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
 .toggle-option {
-    padding: 0.6rem 2rem;
-    cursor: pointer;
-    font-weight: 600;
     position: relative;
     z-index: 2;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--text-light);
+    text-align: center;
     transition: color 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
+    user-select: none;
+}
+
+.toggle-option.active {
+    color: #fff;
+    font-weight: 600;
 }
 
 .toggle-slider {
     position: absolute;
+    z-index: 1;
     top: 5px;
     left: 5px;
+    background-color: var(--primary);
+    border-radius: 25px;
     height: calc(100% - 10px);
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border-radius: 50px;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 1;
-    width: calc(50% - 5px);
+    width: 90px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.toggle-option.active {
-    color: var(--light);
-}
-
-.toggle-option:not(.active) {
-    color: var(--gray);
-}
-
-.toggle-option[data-algorithm="astar"].active ~ .toggle-slider {
+/* When second option (A*) is active */
+.toggle-option:nth-child(2).active ~ .toggle-slider {
     transform: translateX(100%);
 }
 

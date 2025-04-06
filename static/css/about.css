@@ -762,4 +762,236 @@ body.light-theme td {
 
 body.light-theme tr:hover td {
     background: rgba(138, 43, 226, 0.1);
+}
+
+/* Path to Innovation Section */
+.timeline-section {
+    padding: 5rem 0;
+}
+
+.innovation-journey {
+    padding: 3rem;
+    border-radius: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.journey-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.journey-intro {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    font-style: italic;
+}
+
+.journey-visualization {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    height: 150px;
+    margin: 2rem 0;
+}
+
+.journey-node {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(26, 26, 46, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.node-icon {
+    font-size: 1.8rem;
+    color: var(--primary, #8a2be2);
+}
+
+.start-node .node-icon {
+    color: #4ade80;
+}
+
+.end-node .node-icon {
+    color: #f43f5e;
+}
+
+.node-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.3);
+    z-index: -1;
+    animation: pulsate 2s infinite ease-out;
+}
+
+.start-node .node-pulse {
+    background: rgba(74, 222, 128, 0.3);
+}
+
+.end-node .node-pulse {
+    background: rgba(244, 63, 94, 0.3);
+}
+
+.journey-path {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.animate-path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawPath 4s forwards ease-in-out;
+}
+
+.journey-story {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.journey-story p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.story-highlight {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background: rgba(138, 43, 226, 0.15);
+    margin: 1rem 0;
+}
+
+.story-highlight i {
+    color: var(--primary, #8a2be2);
+    font-size: 2rem;
+    margin-top: 0.3rem;
+}
+
+.story-highlight p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-style: italic;
+    margin: 0;
+}
+
+@keyframes pulsate {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.4);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes drawPath {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Light theme for innovation journey */
+body.light-theme .journey-intro,
+body.light-theme .journey-story p {
+    color: #444;
+}
+
+body.light-theme .story-highlight {
+    background: rgba(138, 43, 226, 0.1);
+}
+
+body.light-theme .story-highlight p {
+    color: #333;
+}
+
+body.light-theme .journey-node {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive styles for innovation journey */
+@media (max-width: 768px) {
+    .innovation-journey {
+        padding: 2rem;
+    }
+    
+    .journey-intro {
+        font-size: 1.2rem;
+    }
+    
+    .journey-story p,
+    .story-highlight p {
+        font-size: 1rem;
+    }
+    
+    .journey-visualization {
+        height: 120px;
+    }
+    
+    .journey-node {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .node-icon {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .innovation-journey {
+        padding: 1.5rem;
+    }
+    
+    .journey-intro {
+        font-size: 1.1rem;
+    }
+    
+    .journey-visualization {
+        height: 100px;
+    }
+    
+    .journey-node {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .node-icon {
+        font-size: 1.2rem;
+    }
+    
+    .story-highlight {
+        padding: 1rem;
+    }
+    
+    .story-highlight i {
+        font-size: 1.5rem;
+    }
 } 

@@ -238,14 +238,29 @@ function initCustomCursor() {
 function initAlgorithmToggle() {
     const toggleOptions = document.querySelectorAll('.toggle-option');
     const algorithmInput = document.getElementById('selectedAlgorithm');
+    const slider = document.querySelector('.toggle-slider');
+    
+    console.log('Initializing algorithm toggle with', toggleOptions.length, 'options');
     
     toggleOptions.forEach(option => {
         option.addEventListener('click', function() {
+            const algorithm = this.getAttribute('data-algorithm');
+            console.log('Toggle option clicked:', algorithm);
+            
+            // Update visual state
             toggleOptions.forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             
-            // Update hidden input value
-            algorithmInput.value = this.getAttribute('data-algorithm');
+            // Move slider
+            if (algorithm === 'astar') {
+                slider.style.transform = 'translateX(100%)';
+                algorithmInput.value = 'a_star'; // Convert for backend
+            } else {
+                slider.style.transform = 'translateX(0)';
+                algorithmInput.value = 'dijkstra';
+            }
+            
+            console.log(`Algorithm selected: ${algorithmInput.value}`);
         });
     });
 }

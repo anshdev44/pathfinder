@@ -164,11 +164,18 @@ def find_path_api():
         
         def pathfind_with_timeout():
             try:
+                print(f"Starting pathfinding with algorithm: {algorithm}")
+                start_time = time.time()
+                
                 path, distance, time_mins = pathfinder_instance.find_path(
                     start_id=start_id,
                     end_id=end_id,
                     algorithm=algorithm
                 )
+                
+                end_time = time.time()
+                print(f"Pathfinding completed in {end_time - start_time:.2f} seconds")
+                
                 result["path"] = path
                 result["distance"] = distance
                 result["time"] = time_mins

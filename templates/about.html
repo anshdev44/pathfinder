@@ -217,63 +217,43 @@
     <section class="timeline-section">
         <div class="section-container">
             <div class="section-header animate-on-scroll" data-animation="fade-in-up">
-                <h2>Project Journey</h2>
-                <div class="section-icon"><i class="fas fa-history"></i></div>
-        </div>
+                <h2>Path to Innovation</h2>
+                <div class="section-icon"><i class="fas fa-lightbulb"></i></div>
+            </div>
 
-            <div class="timeline animate-on-scroll" data-animation="fade-in">
-                <div class="timeline-item left">
-                    <div class="timeline-content glassmorphism">
-                        <div class="timeline-icon">
-                            <i class="fas fa-lightbulb"></i>
+            <div class="innovation-journey glassmorphism animate-on-scroll" data-animation="fade-in-up">
+                <div class="journey-content">
+                    <p class="journey-intro">
+                        Every great innovation begins with a spark of curiosity. Our journey from concept to creation wasn't just a linear timeline—it was an algorithm finding its own optimal path.
+                    </p>
+                    
+                    <div class="journey-visualization">
+                        <div class="journey-node start-node">
+                            <div class="node-icon"><i class="fas fa-seedling"></i></div>
+                            <div class="node-pulse"></div>
                         </div>
-                        <h3>Idea Conception</h3>
-                        <div class="timeline-date">June 2023</div>
-                        <p>Initial concept development and research on path finding algorithms and their visualizations.</p>
-        </div>
-    </div>
-
-                <div class="timeline-item right">
-                    <div class="timeline-content glassmorphism">
-                        <div class="timeline-icon">
-                            <i class="fas fa-pencil-alt"></i>
+                        <div class="journey-path">
+                            <svg viewBox="0 0 800 200" preserveAspectRatio="none">
+                                <path d="M20,100 Q200,20 400,100 T780,100" stroke="var(--primary)" stroke-width="4" fill="none" class="animate-path"></path>
+                            </svg>
                         </div>
-                        <h3>Design Phase</h3>
-                        <div class="timeline-date">July 2023</div>
-                        <p>Creating wireframes, selecting technologies, and planning the application architecture.</p>
+                        <div class="journey-node end-node">
+                            <div class="node-icon"><i class="fas fa-rocket"></i></div>
+                            <div class="node-pulse"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="timeline-item left">
-                    <div class="timeline-content glassmorphism">
-                        <div class="timeline-icon">
-                            <i class="fas fa-code"></i>
+                    
+                    <div class="journey-story">
+                        <p>Just like an algorithm explores possible paths, we ventured through uncharted territories of code and design. There were unexpected obstacles, elegant solutions, and moments of clarity when the perfect path revealed itself.</p>
+                        
+                        <div class="story-highlight">
+                            <i class="fas fa-quote-left"></i>
+                            <p>We didn't just build a tool to demonstrate pathfinding—we experienced it ourselves, finding our way through complex problems toward elegant solutions.</p>
                         </div>
-                        <h3>Development</h3>
-                        <div class="timeline-date">August 2023</div>
-                        <p>Implementing the core algorithm visualization logic and integrating with mapping APIs.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item right">
-                    <div class="timeline-content glassmorphism">
-                        <div class="timeline-icon">
-                            <i class="fas fa-bug"></i>
-                        </div>
-                        <h3>Testing & Refining</h3>
-                        <div class="timeline-date">September 2023</div>
-                        <p>Rigorous testing across different browsers and devices, optimizing performance and user experience.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item left">
-                    <div class="timeline-content glassmorphism">
-                        <div class="timeline-icon">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <h3>Launch</h3>
-                        <div class="timeline-date">October 2023</div>
-                        <p>Official release with educational resources and interactive demonstrations for various algorithms.</p>
+                        
+                        <p>Our team's diverse perspectives converged like intersecting paths, each contributing a unique approach to problem-solving. We discovered that the journey itself held as much value as the destination—each iteration teaching us something new about connectivity, optimization, and the beautiful mathematics that guides us through both digital and physical spaces.</p>
+                        
+                        <p>Now we invite you to join us on the next phase of this journey, as we continue to explore, innovate, and find new paths together.</p>
                     </div>
                 </div>
             </div>
@@ -290,11 +270,11 @@
             
             <div class="team-grid">
                 <div class="team-member animate-on-scroll" data-animation="fade-in-up">
-                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=500&q=80" alt="Team Member" class="team-photo">
+                    <img src="{{ url_for('static', filename='images/team_member.jpg') }}" alt="Team Member" class="team-photo">
                     <div class="team-info">
-                        <h3>Emily Chen</h3>
+                        <h3>Raj Kumar</h3>
                         <div class="team-role">Lead Developer</div>
-                        <p class="team-bio">Emily specializes in algorithm optimization and frontend development. She led the implementation of the interactive visualization components.</p>
+                        <p class="team-bio">Raj specializes in algorithm optimization and backend development. He led the implementation of the pathfinding algorithms and API integration.</p>
                         <div class="social-links">
                             <a href="#" class="social-link"><i class="fab fa-github"></i></a>
                             <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>

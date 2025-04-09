@@ -155,7 +155,7 @@
         }
         
         .quote::before {
-            content: """;
+            content: "";
             font-size: 4rem;
             position: absolute;
             top: -20px;
@@ -462,19 +462,15 @@
                     <h3>Dijkstra's Algorithm</h3>
                     <p>Named after Dutch computer scientist Edsger W. Dijkstra, this algorithm guarantees the shortest path in graphs with non-negative edge weights by methodically exploring all possible routes outward from the starting point.</p>
                     
-                    <div class="algo-animation" id="dijkstra-animation">
-                        <!-- Animation elements will be created by JavaScript -->
-                    </div>
-                    
-            <div class="algorithm-details">
+                    <div class="algorithm-details">
                         <h3><i class="fas fa-code"></i> How It Works</h3>
-                <ol>
+                        <ol>
                             <li>Initialize distances from source to all vertices as infinite and the source itself as zero.</li>
                             <li>Create a priority queue to store vertices that need to be processed.</li>
                             <li>Extract the vertex with the minimum distance value from the priority queue.</li>
                             <li>For each adjacent vertex, if the sum of the distance to the current vertex and the weight of the edge to the adjacent vertex is less than the known distance to the adjacent vertex, update the distance.</li>
                             <li>Repeat until all vertices have been processed.</li>
-                </ol>
+                        </ol>
                         
                         <div class="fact-box">
                             <h3><i class="fas fa-history"></i> Historical Note</h3>
@@ -497,10 +493,6 @@
                     <h3>A* Algorithm</h3>
                     <p>A* (pronounced "A-star") is an informed search algorithm that uses heuristics to guide its path exploration. It's like Dijkstra's algorithm with a compass pointing toward the destination.</p>
                     
-                    <div class="algo-animation" id="astar-animation">
-                        <!-- Animation elements will be created by JavaScript -->
-                    </div>
-                    
                     <div class="algorithm-details">
                         <h3><i class="fas fa-lightbulb"></i> The A* Innovation</h3>
                         <p>A* uses a best-first search approach and evaluates nodes by combining:</p>
@@ -520,9 +512,9 @@
                             <li>Video game pathfinding for characters navigating complex environments</li>
                             <li>Robotics for planning efficient motion paths</li>
                             <li>GPS systems for finding routes that balance distance and other factors</li>
-                </ul>
-            </div>
-        </div>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

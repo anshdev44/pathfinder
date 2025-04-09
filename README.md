@@ -26,7 +26,7 @@ not very responsive on smartphones
 
 - **Frontend:** HTML, CSS, JavaScript  
 - **Backend:** Python (Flask or similar)
-- **Algorithm:** Dijkstra’s Algorithm 
+- **Algorithm:** Dijkstra’s , A star Algorithm 
 
 ---
 

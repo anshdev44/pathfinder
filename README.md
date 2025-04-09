@@ -6,7 +6,7 @@ A web application that finds the shortest route between two places using graph a
 
 👉 [Visit the Website]([https://your-deployed-site-link.com](https://pathfinder-l1pv.onrender.com/))  
 
-https://pathfinder-l1pv.onrender.com
+[https://pathfinder-l1pv.onrender.com](https://pathfinder-l1pv.onrender.com/)
 not very responsive on smartphones
 
 
